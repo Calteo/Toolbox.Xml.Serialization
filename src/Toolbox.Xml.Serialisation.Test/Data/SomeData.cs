@@ -24,7 +24,7 @@ namespace Toolbox.Xml.Serialisation.Test.Data
         public int Value { get; set; }
         public bool YesNo { get; set; }
 
-        [XmlNotSerialized]
+        [XmlNonSerialized]
         public string NotGood { get; set; }
 
         public decimal Number { get; set; }

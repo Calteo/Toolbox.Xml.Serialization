@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Toolbox.Xml.Serialization
 {
-    [System.AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    /// <summary>
+    /// Marks an object for usage by the <see cref="XmlFormatter{T}"/>.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     sealed public class XmlSerializeableAttribute : Attribute
     {
         public XmlSerializeableAttribute(string name = null)

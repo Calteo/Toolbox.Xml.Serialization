@@ -4,13 +4,19 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Toolbox.Xml.Serialization
 {
+    /// <summary>
+    /// The basic formatter class.
+    /// </summary>
+    /// <typeparam name="T">A class with a default constructor.</typeparam>
     public class XmlFormatter<T> where T : class, new()
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="XmlFormatter{T}"/>.
+        /// </summary>
         public XmlFormatter()
         {
             var attrtibute = typeof(T).GetCustomAttribute<XmlSerializeableAttribute>(true);
@@ -18,7 +24,12 @@ namespace Toolbox.Xml.Serialization
                 throw new Exception($"missing attribute XmlSerializeable on type '{typeof(T).FullName}'");
         }
 
-
+        /// <summary>
+        /// Serializes an object to a file.
+        /// </summary>
+        /// <param name="obj">The object to serialize</param>
+        /// <param name="filename">a filename</param>
+        /// <param name="settings">optional settings for the format of the xml</param>
         public void Serialize(T obj, string filename, XmlWriterSettings settings = null)
         {
             if (settings == null)
@@ -37,6 +48,11 @@ namespace Toolbox.Xml.Serialization
             }
         }
         
+        /// <summary>
+        /// Serialize an object to an writer
+        /// </summary>
+        /// <param name="obj">object to serialize</param>
+        /// <param name="writer">written to this writer</param>
         public void Serialize(T obj, XmlWriter writer)
         {
             writer.WriteStartDocument();
@@ -93,6 +109,11 @@ namespace Toolbox.Xml.Serialization
             return name;
         }
 
+        /// <summary>
+        /// Deserialize an object from a file.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns>The deserialized object</returns>
         public T Deserialize(string filename)
         {
             using (var reader = XmlReader.Create(filename))
@@ -101,6 +122,11 @@ namespace Toolbox.Xml.Serialization
             }
         }
 
+        /// <summary>
+        /// Deserialize an object from a reader.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns>The deserialized object</returns>
         public T Deserialize(XmlReader reader)
         {
             var attribute = typeof(T).GetCustomAttribute<XmlSerializeableAttribute>();
@@ -165,7 +191,7 @@ namespace Toolbox.Xml.Serialization
         private IEnumerable<PropertyInfo> GetProperties(Type type)
         {
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                .Where(p => p.CanRead && p.CanWrite && p.GetCustomAttribute<XmlNotSerializedAttribute>() == null);
+                                .Where(p => p.CanRead && p.CanWrite && p.GetCustomAttribute<XmlNonSerializedAttribute>() == null);
         }
 
         private bool CanSerialize(PropertyInfo property)

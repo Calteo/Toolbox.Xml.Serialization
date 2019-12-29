@@ -43,7 +43,7 @@
   <ItemGroup>
     <Compile Include="XmlFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XmlNotSerialized.cs" />
+    <Compile Include="XmlNonSerialized.cs" />
     <Compile Include="XmlSerializable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
