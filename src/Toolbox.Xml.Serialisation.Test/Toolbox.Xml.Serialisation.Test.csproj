@@ -51,6 +51,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\BadSubData.cs" />
     <Compile Include="Data\SomeData.cs" />
     <Compile Include="Data\SubData.cs" />
     <Compile Include="SomeDataTest.cs" />
