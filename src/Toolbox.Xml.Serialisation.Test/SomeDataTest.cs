@@ -21,7 +21,8 @@ namespace Toolbox.Xml.Serialisation.Test
                 SubData = new SubData
                 {
                     Info = $"Info at {GetHashCode()}"
-                }
+                },
+                Names = new[] {"Name1", "Name2"},
             };
 
             const string filename = "somedata.xml";
@@ -36,6 +37,11 @@ namespace Toolbox.Xml.Serialisation.Test
             Assert.AreEqual(data.SubData.Info, read.SubData.Info);
             Assert.AreEqual(data.DataAfterObject, read.DataAfterObject);
             Assert.AreNotEqual(data.NotGood, read.NotGood);
+            Assert.AreEqual(data.Names.Length, read.Names.Length);
+            for (var i = 0; i < data.Names.Length; i++)
+            {
+                Assert.AreEqual(data.Names[i], read.Names[i], $"Names[{i}] differ");
+            }
         }
 
         [TestMethod]

@@ -27,24 +27,29 @@ namespace Toolbox.Xml.Serialization
             var document = Serialize(obj);
             document.Save(fileName, saveOptions);
         }
+
+        private const string ItemName = "Item";
         
         private XDocument Serialize(T obj)
         {
             var document = new XDocument();
-            
-            document.Add(SerializeObject(obj));
+
+            var root = SerializeObject(typeof(T).Name, obj);
+
+            document.Add(root);
 
             return document;
         }
 
-        private XElement SerializeObject(object obj)
+        private XElement SerializeObject(string name, object obj)
         {
-            if (obj.GetType().GetConstructor(Type.EmptyTypes) == null)
+            var type = obj.GetType();
+            if (type.GetConstructor(Type.EmptyTypes) == null)
                 return null;
 
-            var element = new XElement(obj.GetType().Name);
+            var element = new XElement(type.Name);
 
-            var properties = GetProperties(obj.GetType());
+            var properties = GetProperties(type);
 
             foreach (var property in properties)
             {
@@ -60,45 +65,67 @@ namespace Toolbox.Xml.Serialization
         {
             if (!property.CanRead) return null;
 
-            if (property.PropertyType.IsArray)
+            return SerializeValue(property.Name, property.GetValue(obj));
+        }
+
+        private XElement SerializeValue(string name, object value)
+        {
+            var type = value?.GetType();
+
+            if (type == null)
+                return new XElement(name);
+
+            if (type.IsArray)
             {
-                // TODO: array
-                return null;
+                return SerializeArray(name, (Array)value);
             }
-            else if (property.PropertyType == typeof(string))
+            else if (type == typeof(string))
             {
-                return SerializeString(obj, property);
+                return SerializeString(name, (string)value);
             }
-            else if (property.PropertyType.IsValueType)
+            else if (type.IsValueType)
             {
-                return SerializeValueType(obj, property);
+                return SerializeValueType(name, value);
             }
             else
             {
-                var value = property.GetValue(obj);
-                if (value == null)
-                    return new XElement(property.Name);
-
-                return SerializeObject(value);
+                return SerializeObject(name, value);
             }
         }
 
-        private XElement SerializeString(object obj, PropertyInfo property)
-        {
-            var element = new XElement(property.Name);
+        private XElement SerializeArray(string name, Array value)
+        {            
+            if (value.Rank != 1) return null;
 
-            var value = (string)property.GetValue(obj);
+            var element = new XElement(name);
+
+            for (var i = 0; i < value.Length; i++)
+            {
+                var elementValue = value.GetValue(i);
+                var itemElement = SerializeValue(ItemName, elementValue);
+                if (itemElement != null)
+                {
+                    element.Add(itemElement);
+                }
+            }
+
+            return element;
+        }
+
+        private XElement SerializeString(string name, string value)
+        {
+            var element = new XElement(name);
+
             if (value != null)
                 element.Add(new XText(value));
 
             return element;
         }
 
-        private XElement SerializeValueType(object obj, PropertyInfo property)
+        private XElement SerializeValueType(string name, object value)
         {
-            var element = new XElement(property.Name);
+            var element = new XElement(name);
 
-            var value = property.GetValue(obj);
             if (value != null)
             {
                 element.Add(new XText(Convert.ToString(value, CultureInfo.InvariantCulture)));
@@ -139,29 +166,39 @@ namespace Toolbox.Xml.Serialization
             var propertyElement = element.Element(property.Name);
             if (propertyElement == null) return;
 
-            object value = null;
-
-            if (propertyElement.IsEmpty)
-            {                
-            }            
-            else if (property.PropertyType.IsArray)
-            {
-                // TODO: array
-            }
-            else if (property.PropertyType == typeof(string))
-            {
-                value = DeserializeString(propertyElement);
-            }
-            else if (property.PropertyType.IsValueType)
-            {
-                value = DeserializeValueType(propertyElement, property.PropertyType);
-            }
-            else
-            {
-                value = DeserializeObject(propertyElement, property.PropertyType);
-            }
+            object value = DeserializeValue(propertyElement, property.PropertyType);
 
             property.SetValue(obj, value);
+        }
+
+        private object DeserializeValue(XElement element, Type type)
+        {
+            if (element.IsEmpty)
+                return null;
+
+            if (type.IsArray)
+                return DeserializeArray(element, type);
+
+            if (type == typeof(string))
+                return DeserializeString(element);
+            
+            if (type.IsValueType)
+                return DeserializeValueType(element, type);
+
+            return DeserializeObject(element, type);            
+        }
+
+        private object DeserializeArray(XElement element, Type type)
+        {
+            var items = element.Elements(ItemName).ToArray();
+            var elementType = type.GetElementType();
+            var obj = Array.CreateInstance(type.GetElementType(), items.Length);
+            for (var i = 0; i < items.Length; i++)
+            {
+                var value = DeserializeValue(items[i], elementType);
+                obj.SetValue(value, i);
+            }
+            return obj;
         }
 
         private string DeserializeString(XElement element)
