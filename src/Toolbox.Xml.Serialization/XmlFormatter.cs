@@ -22,32 +22,62 @@ namespace Toolbox.Xml.Serialization
         /// <param name="obj">The object to serialize</param>
         /// <param name="fileName">a filename</param>
         /// <param name="saveOptions">options for saving</param>
-        public void Serialize(T obj, string fileName, SaveOptions saveOptions = SaveOptions.None)
+        public void Serialize(T obj, string fileName, SaveOptions saveOptions = SaveOptions.OmitDuplicateNamespaces)
         {
             var document = Serialize(obj);
             document.Save(fileName, saveOptions);
         }
 
         private const string ItemName = "Item";
+        private const string TypeName = "type";
+        private const string SystemNamespacePrefix = "sys";
+
+        private XNamespace SystemNamespace = "http://me";
+
+
+        private Dictionary<Type, string> ExtendedTypes { get; } = new Dictionary<Type, string>();
+        private XAttribute GetExtendedTypeAttribute(Type type)
+        {
+            if (!ExtendedTypes.TryGetValue(type, out string name))
+            {                
+                name = $"t{ExtendedTypes.Count + 1}";
+                ExtendedTypes[type] = name;
+            }
+            return new XAttribute(SystemNamespace + TypeName, name);
+        }
         
         private XDocument Serialize(T obj)
         {
+            ExtendedTypes.Clear();
+
             var document = new XDocument();
 
-            var root = SerializeObject(typeof(T).Name, obj);
+            var root = SerializeObject(typeof(T).Name, obj, typeof(T));
+            if (ExtendedTypes.Count > 0)
+            {
+                root.Add(new XAttribute(XNamespace.Xmlns + SystemNamespacePrefix, SystemNamespace));
+                foreach (var kvp in ExtendedTypes.OrderBy(kvp => kvp.Value))
+                {
+                    root.Add(new XAttribute(SystemNamespace + kvp.Value, kvp.Key.AssemblyQualifiedName));
+                }
+            }
 
             document.Add(root);
 
             return document;
         }
 
-        private XElement SerializeObject(string name, object obj)
+        private XElement SerializeObject(string name, object obj, Type expectedType)
         {
             var type = obj.GetType();
             if (type.GetConstructor(Type.EmptyTypes) == null)
                 return null;
 
-            var element = new XElement(type.Name);
+            var element = new XElement(expectedType.Name);
+            if (expectedType != type)
+            {
+                element.Add(GetExtendedTypeAttribute(type));
+            }
 
             var properties = GetProperties(type);
 
@@ -65,10 +95,10 @@ namespace Toolbox.Xml.Serialization
         {
             if (!property.CanRead) return null;
 
-            return SerializeValue(property.Name, property.GetValue(obj));
+            return SerializeValue(property.Name, property.GetValue(obj), property.PropertyType);
         }
 
-        private XElement SerializeValue(string name, object value)
+        private XElement SerializeValue(string name, object value, Type expectedType)
         {
             var type = value?.GetType();
 
@@ -77,7 +107,7 @@ namespace Toolbox.Xml.Serialization
 
             if (type.IsArray)
             {
-                return SerializeArray(name, (Array)value);
+                return SerializeArray(name, (Array)value, expectedType);
             }
             else if (type == typeof(string))
             {
@@ -89,20 +119,21 @@ namespace Toolbox.Xml.Serialization
             }
             else
             {
-                return SerializeObject(name, value);
+                return SerializeObject(name, value, expectedType);
             }
         }
 
-        private XElement SerializeArray(string name, Array value)
+        private XElement SerializeArray(string name, Array value, Type expectedType)
         {            
             if (value.Rank != 1) return null;
 
             var element = new XElement(name);
+            
 
             for (var i = 0; i < value.Length; i++)
             {
                 var elementValue = value.GetValue(i);
-                var itemElement = SerializeValue(ItemName, elementValue);
+                var itemElement = SerializeValue(ItemName, elementValue, expectedType.GetElementType());
                 if (itemElement != null)
                 {
                     element.Add(itemElement);
@@ -134,6 +165,8 @@ namespace Toolbox.Xml.Serialization
             return element;
         }
 
+        private Dictionary<string, Type> DeserializeTypes { get; } = new Dictionary<string, Type>();
+
         /// <summary>
         /// Deserialize an object from a file.
         /// </summary>
@@ -142,12 +175,20 @@ namespace Toolbox.Xml.Serialization
         public T Deserialize(string fileName)
         {
             var document = XDocument.Load(fileName, LoadOptions.SetLineInfo);
+
+            DeserializeTypes.Clear();
+            var attributes = document.Root.Attributes().Where(a => a.Name.Namespace == SystemNamespace);
+
+            foreach (var attribute in attributes)
+            {
+                DeserializeTypes.Add(attribute.Name.LocalName, Type.GetType(attribute.Value, true));
+            }
+
             return (T)DeserializeObject(document.Root, typeof(T));
         }
-
        
         private object DeserializeObject(XElement element, Type type) 
-        {
+        {            
             var obj = Activator.CreateInstance(type);
             var properties = GetProperties(type);
 
@@ -163,7 +204,7 @@ namespace Toolbox.Xml.Serialization
         {
             if (!property.CanWrite) return;
 
-            var propertyElement = element.Element(property.Name);
+            var propertyElement = element.Elements().FirstOrDefault(e => e.Name.LocalName == property.Name);
             if (propertyElement == null) return;
 
             object value = DeserializeValue(propertyElement, property.PropertyType);
@@ -175,6 +216,12 @@ namespace Toolbox.Xml.Serialization
         {
             if (element.IsEmpty)
                 return null;
+
+            var typeAttribute = element.Attribute(SystemNamespace + TypeName);
+            if (typeAttribute != null)
+            {
+                type = DeserializeTypes[typeAttribute.Value];
+            }
 
             if (type.IsArray)
                 return DeserializeArray(element, type);
@@ -190,7 +237,7 @@ namespace Toolbox.Xml.Serialization
 
         private object DeserializeArray(XElement element, Type type)
         {
-            var items = element.Elements(ItemName).ToArray();
+            var items = element.Elements().Where(e => e.Name.LocalName == ItemName).ToArray();
             var elementType = type.GetElementType();
             var obj = Array.CreateInstance(type.GetElementType(), items.Length);
             for (var i = 0; i < items.Length; i++)

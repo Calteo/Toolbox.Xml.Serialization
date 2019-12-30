@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SomeData xmlns:sys="http://me" sys:t1="Toolbox.Xml.Serialisation.Test.Data.DerivedSubData, Toolbox.Xml.Serialisation.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+  <Name />
+  <Value>64019460</Value>
+  <YesNo>True</YesNo>
+  <Number>64019460.42</Number>
+  <SubData sys:type="t1">
+    <MoreInfo>MoreInfo at 64019460</MoreInfo>
+    <Info>Info at 64019460</Info>
+  </SubData>
+  <DataAfterObject>Some text after object at 64019460</DataAfterObject>
+  <Names>
+    <Item>Name1</Item>
+    <Item>Name2</Item>
+  </Names>
+</SomeData>

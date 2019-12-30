@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\BadSubData.cs" />
+    <Compile Include="Data\DerivedSubData.cs" />
     <Compile Include="Data\SomeData.cs" />
     <Compile Include="Data\SubData.cs" />
     <Compile Include="SomeDataTest.cs" />
@@ -65,6 +66,11 @@
       <Project>{dde8dac5-0253-472c-8439-5612aeb5fba9}</Project>
       <Name>Toolbox.Xml.Serialization</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\SomeDataWithDerivedSubData.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
