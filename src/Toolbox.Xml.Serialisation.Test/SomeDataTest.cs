@@ -12,7 +12,17 @@ namespace Toolbox.Xml.Serialisation.Test
         public void WriteAndReadSomeData()
         {
             var cut = new XmlFormatter<SomeData>();
-            var data = new SomeData();
+            var data = new SomeData
+            {
+                Name = null,
+                Number = 0.42M + (decimal)GetHashCode(),
+                DataAfterObject = $"Some text after object at {GetHashCode()}",
+                Value = GetHashCode(),
+                SubData = new SubData
+                {
+                    Info = $"Info at {GetHashCode()}"
+                }
+            };
 
             const string filename = "somedata.xml";
 

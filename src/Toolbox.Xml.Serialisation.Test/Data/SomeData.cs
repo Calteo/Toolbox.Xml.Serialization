@@ -7,7 +7,6 @@ using Toolbox.Xml.Serialization;
 
 namespace Toolbox.Xml.Serialisation.Test.Data
 {
-    [XmlSerializeable]
     class SomeData
     {
         public SomeData()
@@ -24,7 +23,7 @@ namespace Toolbox.Xml.Serialisation.Test.Data
         public int Value { get; set; }
         public bool YesNo { get; set; }
 
-        [XmlNonSerialized]
+        [NotSerialized]
         public string NotGood { get; set; }
 
         public decimal Number { get; set; }

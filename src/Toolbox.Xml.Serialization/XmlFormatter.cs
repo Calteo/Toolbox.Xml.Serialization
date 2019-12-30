@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace Toolbox.Xml.Serialization
 {
@@ -15,188 +17,168 @@ namespace Toolbox.Xml.Serialization
     public class XmlFormatter<T> where T : class, new()
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="XmlFormatter{T}"/>.
-        /// </summary>
-        public XmlFormatter()
-        {
-            var attrtibute = typeof(T).GetCustomAttribute<XmlSerializeableAttribute>(true);
-            if (attrtibute == null)
-                throw new Exception($"missing attribute XmlSerializeable on type '{typeof(T).FullName}'");
-        }
-
-        /// <summary>
         /// Serializes an object to a file.
         /// </summary>
         /// <param name="obj">The object to serialize</param>
-        /// <param name="filename">a filename</param>
-        /// <param name="settings">optional settings for the format of the xml</param>
-        public void Serialize(T obj, string filename, XmlWriterSettings settings = null)
+        /// <param name="fileName">a filename</param>
+        /// <param name="saveOptions">options for saving</param>
+        public void Serialize(T obj, string fileName, SaveOptions saveOptions = SaveOptions.None)
         {
-            if (settings == null)
-            {
-                settings = new XmlWriterSettings
-                {
-                    CloseOutput = true,
-                    Encoding = Encoding.UTF8,
-                    NewLineHandling = NewLineHandling.Entitize,
-                    Indent = true,
-                };
-            }
-            using (var writer = XmlWriter.Create(filename, settings))
-            {
-                Serialize(obj, writer);
-            }
+            var document = Serialize(obj);
+            document.Save(fileName, saveOptions);
         }
         
-        /// <summary>
-        /// Serialize an object to an writer
-        /// </summary>
-        /// <param name="obj">object to serialize</param>
-        /// <param name="writer">written to this writer</param>
-        public void Serialize(T obj, XmlWriter writer)
+        private XDocument Serialize(T obj)
         {
-            writer.WriteStartDocument();
+            var document = new XDocument();
+            
+            document.Add(SerializeObject(obj));
 
-            var name = GetName(typeof(T));
-            writer.WriteStartElement(name);
-
-            SerializeObject(obj, writer);
-
-            writer.WriteEndElement();
-
-            writer.WriteEndDocument();
+            return document;
         }
 
-        private void SerializeObject(object obj, XmlWriter writer)
+        private XElement SerializeObject(object obj)
         {
+            if (obj.GetType().GetConstructor(Type.EmptyTypes) == null)
+                return null;
+
+            var element = new XElement(obj.GetType().Name);
+
             var properties = GetProperties(obj.GetType());
 
             foreach (var property in properties)
             {
-                writer.WriteStartElement(property.Name);
-                if (!property.PropertyType.IsArray)
-                {
-                    if (CanSerialize(property))
-                    {
-                        var value = property.GetValue(obj);
-                        if (value != null)
-                        {
-                            var text = Convert.ToString(value, CultureInfo.InvariantCulture);
-                            writer.WriteString(text);
-                        }
-                    }
-                    else
-                    {
-                        var value = property.GetValue(obj);
-                        if (value != null)
-                        {
-                            GetName(value.GetType());           // Just to check the attribute
-                            SerializeObject(value, writer);
-                        }
-                    }
-                }
-                writer.WriteEndElement();
+                var propertyElement = Serialize(obj, property);
+                if (propertyElement != null)
+                    element.Add(propertyElement);            
+            }
+
+            return element;
+        }
+        
+        private XElement Serialize(object obj, PropertyInfo property)
+        {
+            if (!property.CanRead) return null;
+
+            if (property.PropertyType.IsArray)
+            {
+                // TODO: array
+                return null;
+            }
+            else if (property.PropertyType == typeof(string))
+            {
+                return SerializeString(obj, property);
+            }
+            else if (property.PropertyType.IsValueType)
+            {
+                return SerializeValueType(obj, property);
+            }
+            else
+            {
+                var value = property.GetValue(obj);
+                if (value == null)
+                    return new XElement(property.Name);
+
+                return SerializeObject(value);
             }
         }
 
-        private string GetName(Type type)
+        private XElement SerializeString(object obj, PropertyInfo property)
         {
-            var attribute = type.GetCustomAttribute<XmlSerializeableAttribute>();
-            if (attribute == null)
-                throw new Exception($"missing attribute XmlSerializeable on type {type.FullName}");
-            var name = attribute.Name ?? typeof(T).Name;
+            var element = new XElement(property.Name);
 
-            return name;
+            var value = (string)property.GetValue(obj);
+            if (value != null)
+                element.Add(new XText(value));
+
+            return element;
+        }
+
+        private XElement SerializeValueType(object obj, PropertyInfo property)
+        {
+            var element = new XElement(property.Name);
+
+            var value = property.GetValue(obj);
+            if (value != null)
+            {
+                element.Add(new XText(Convert.ToString(value, CultureInfo.InvariantCulture)));
+            }
+
+            return element;
         }
 
         /// <summary>
         /// Deserialize an object from a file.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="fileName"></param>
         /// <returns>The deserialized object</returns>
-        public T Deserialize(string filename)
+        public T Deserialize(string fileName)
         {
-            using (var reader = XmlReader.Create(filename))
-            {
-                return Deserialize(reader);
-            }
+            var document = XDocument.Load(fileName, LoadOptions.SetLineInfo);
+            return (T)DeserializeObject(document.Root, typeof(T));
         }
 
-        /// <summary>
-        /// Deserialize an object from a reader.
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <returns>The deserialized object</returns>
-        public T Deserialize(XmlReader reader)
-        {
-            var attribute = typeof(T).GetCustomAttribute<XmlSerializeableAttribute>();
-            var name = attribute?.Name ?? typeof(T).Name;
-
-            reader.ReadStartElement(name);
-
-            return (T)DeserializeObject(reader, typeof(T));
-        }
-
-        private object DeserializeObject(XmlReader reader, Type type) 
+       
+        private object DeserializeObject(XElement element, Type type) 
         {
             var obj = Activator.CreateInstance(type);
-            var properties = new Queue<PropertyInfo>(GetProperties(type));
+            var properties = GetProperties(type);
 
-            var reading = true;
-
-            while (reading && reader.Read())
+            foreach (var property in properties)
             {
-                switch (reader.NodeType)
-                {
-                    case XmlNodeType.Element:
-                        {
-                            while (properties.Count > 0 && properties.Peek().Name != reader.Name)
-                                properties.Dequeue();
-                            if (properties.Count > 0)
-                            {
-                                var property = properties.Dequeue();
-                                if (!reader.IsEmptyElement)
-                                {
-                                    if (!property.PropertyType.IsArray)
-                                    {
-                                        if (CanSerialize(property))
-                                        {
-                                            var text = reader.ReadElementContentAsString();
-                                            var value = Convert.ChangeType(text, property.PropertyType, CultureInfo.InvariantCulture);
-                                            property.SetValue(obj, value);
-                                        }
-                                        else
-                                        {
-                                            var value = DeserializeObject(reader, property.PropertyType);
-                                            property.SetValue(obj, value);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    property.SetValue(obj, null);
-                                }
-                            }
-                        }
-                        break;
-                    case XmlNodeType.EndElement:
-                        reading = false;
-                        break;
-                }
-            }            
+                DeserializeProperty(element, obj, property);
+            }
 
             return obj;
+        }
+
+        private void DeserializeProperty(XElement element, object obj, PropertyInfo property)
+        {
+            if (!property.CanWrite) return;
+
+            var propertyElement = element.Element(property.Name);
+            if (propertyElement == null) return;
+
+            object value = null;
+
+            if (propertyElement.IsEmpty)
+            {                
+            }            
+            else if (property.PropertyType.IsArray)
+            {
+                // TODO: array
+            }
+            else if (property.PropertyType == typeof(string))
+            {
+                value = DeserializeString(propertyElement);
+            }
+            else if (property.PropertyType.IsValueType)
+            {
+                value = DeserializeValueType(propertyElement, property.PropertyType);
+            }
+            else
+            {
+                value = DeserializeObject(propertyElement, property.PropertyType);
+            }
+
+            property.SetValue(obj, value);
+        }
+
+        private string DeserializeString(XElement element)
+        {
+            return (element.FirstNode as XText)?.Value;            
+        }
+
+        private object DeserializeValueType(XElement element, Type type)
+        {
+            var text = (element.FirstNode as XText)?.Value;
+            return Convert.ChangeType(text, type, CultureInfo.InvariantCulture);
         }
 
         private IEnumerable<PropertyInfo> GetProperties(Type type)
         {
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                .Where(p => p.CanRead && p.CanWrite && p.GetCustomAttribute<XmlNonSerializedAttribute>() == null);
-        }
-
-        private bool CanSerialize(PropertyInfo property)
-        {
-            return property.PropertyType==typeof(string) || !property.PropertyType.IsClass;
+                                .Where(p => p.CanRead && p.CanWrite && p.GetCustomAttribute<NotSerializedAttribute>() == null);
         }
     }
 }
