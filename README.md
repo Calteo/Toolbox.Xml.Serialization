@@ -1,6 +1,8 @@
 # Toolbox.Xml.Serialization
 A simple framework to serialize objects to xml.
 
+Currrent status: [![Build status](https://ci.appveyor.com/api/projects/status/58yntgqha1wp71vg?svg=true)](https://ci.appveyor.com/project/Calteo/toolbox-xml-serialization)
+
 Often we need to serialize data object to xml and various techniques can be used. This is a simpe class to handle the most used cases. 
 The basic idea is the serialize the maximum possible and do not bother about the the thinds that can not be serialized. They are simple obmitted. Also no declaration (i.e. `Serializable` attribute) is neccessary to include an object.
 
