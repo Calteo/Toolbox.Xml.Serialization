@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Toolbox.Xml.Serialization</id>
+    <version>$version$</version>
+    <title>Toolbox.Xml.Serialization</title>
+    <authors>Calteo</authors>
+    <owners>Calteo</owners>
+    <licenseUrl>https://github.com/Calteo/Toolbox.Xml.Serialization/blob/master/LICENSE</licenseUrl>    
+    <projectUrl>https://github.com/Calteo/Toolbox.Xml.Serialization</projectUrl>
+    <iconUrl>https://github.com/Calteo/Toolbox.Xml.Serialization/src/app.ico</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>serialiizes objects to xml</description>
+    <releaseNotes>First beta</releaseNotes>
+    <copyright>Copyright 2020</copyright>
+    <tags>serialization xml</tags>
+  </metadata>
+</package>
