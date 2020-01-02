@@ -30,6 +30,7 @@ namespace Toolbox.Xml.Serialisation.Test
                     Info = $"Info at {GetHashCode()}"
                 },
                 Names = new[] {"Name1", "Name2"},
+                Products = { "product1", "product2", "product3" }
             };
 
             cut.Serialize(data, Filename);
@@ -47,6 +48,7 @@ namespace Toolbox.Xml.Serialisation.Test
             {
                 Assert.AreEqual(data.Names[i], read.Names[i], $"Names[{i}] differ");
             }
+            Assert.AreEqual(data.Products.Count, read.Products.Count);
         }
 
         [TestMethod]

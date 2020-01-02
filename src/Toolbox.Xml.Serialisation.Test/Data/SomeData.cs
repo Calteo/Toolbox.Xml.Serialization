@@ -16,7 +16,8 @@ namespace Toolbox.Xml.Serialisation.Test.Data
             Number = 3.14M;
             SubData = new SubData();
             DataAfterObject = $"Some data after object reference at {GetHashCode()}";
-            NotGood = $"This is {GetHashCode()}";            
+            NotGood = $"This is {GetHashCode()}";
+            Products = new List<string>();
         }
 
         public string Name { get; set; }
@@ -30,5 +31,7 @@ namespace Toolbox.Xml.Serialisation.Test.Data
         public SubData SubData { get; set; }
         public string DataAfterObject { get; set; }
         public string[] Names { get; set; }
+
+        public List<string> Products { get; set; }
     }
 }

@@ -29,10 +29,11 @@ namespace Toolbox.Xml.Serialization
         }
 
         private const string ItemName = "Item";
+        private const string ItemsName = "Items";
         private const string TypeName = "type";
         private const string SystemNamespacePrefix = "sys";
 
-        private XNamespace SystemNamespace = "http://me";
+        private XNamespace SystemNamespace = "https://github.com/Calteo/Toolbox.Xml.Serialization";
 
 
         private Dictionary<Type, string> ExtendedTypes { get; } = new Dictionary<Type, string>();
@@ -73,7 +74,7 @@ namespace Toolbox.Xml.Serialization
             if (type.GetConstructor(Type.EmptyTypes) == null)
                 return null;
 
-            var element = new XElement(expectedType.Name);
+            var element = new XElement(name);
             if (expectedType != type)
             {
                 element.Add(GetExtendedTypeAttribute(type));
@@ -93,7 +94,7 @@ namespace Toolbox.Xml.Serialization
         
         private XElement Serialize(object obj, PropertyInfo property)
         {
-            if (!property.CanRead) return null;
+            if (!property.CanRead || !property.CanWrite || property.GetIndexParameters().Length != 0) return null;
 
             return SerializeValue(property.Name, property.GetValue(obj), property.PropertyType);
         }
@@ -119,7 +120,25 @@ namespace Toolbox.Xml.Serialization
             }
             else
             {
-                return SerializeObject(name, value, expectedType);
+                var element = SerializeObject(name, value, expectedType);
+                if (element != null)
+                {
+                    var genericCollectionInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>));
+                    if (genericCollectionInterface != null)
+                    {
+                        var expectedItemType = genericCollectionInterface.GetGenericArguments()[0];
+                        dynamic collection = value;
+                        var collectionElement = new XElement(ItemsName);
+                        element.Add(collectionElement);
+                        foreach (var item in collection)
+                        {
+                            var itemElement = SerializeValue(ItemName, (object)item, expectedItemType);
+                            if (itemElement != null)
+                                collectionElement.Add(itemElement);
+                        }
+                    }
+                }
+                return element;
             }
         }
 
@@ -232,7 +251,25 @@ namespace Toolbox.Xml.Serialization
             if (type.IsValueType)
                 return DeserializeValueType(element, type);
 
-            return DeserializeObject(element, type);            
+            var obj = DeserializeObject(element, type);
+            if (obj != null)
+            {
+                var genericCollectionInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>));
+                if (genericCollectionInterface != null)
+                {
+                    var expectedItemType = genericCollectionInterface.GetGenericArguments()[0];
+
+                    genericCollectionInterface.GetMethod("Clear").Invoke(obj, null);
+                    var collectionElement = element.Element(ItemsName);
+                    foreach (var itemElement in collectionElement.Elements(ItemName))
+                    {
+                        var item = DeserializeValue(itemElement, expectedItemType);
+                        genericCollectionInterface.GetMethod("Add").Invoke(obj, new[] { item });
+                    }
+                }
+            }
+
+            return obj;
         }
 
         private object DeserializeArray(XElement element, Type type)
