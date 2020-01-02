@@ -12,16 +12,17 @@ namespace Toolbox.Xml.Serialisation.Test.Data
         public SomeData()
         {
             YesNo = true;
-            Value = 42;
+            Value = GetHashCode();
             Number = 3.14M;
             SubData = new SubData();
             DataAfterObject = $"Some data after object reference at {GetHashCode()}";
             NotGood = $"This is {GetHashCode()}";
             Products = new List<string>();
+            SubDatas = new Dictionary<string, SubData>();
         }
 
         public string Name { get; set; }
-        public int Value { get; set; }
+        public int Value { get; private set; }
         public bool YesNo { get; set; }
 
         [NotSerialized]
@@ -33,5 +34,7 @@ namespace Toolbox.Xml.Serialisation.Test.Data
         public string[] Names { get; set; }
 
         public List<string> Products { get; set; }
+
+        public Dictionary<string, SubData> SubDatas { get; set; }
     }
 }

@@ -23,14 +23,18 @@ namespace Toolbox.Xml.Serialisation.Test
             {
                 Name = null,
                 Number = 0.42M + GetHashCode(),
-                DataAfterObject = $"Some text after object at {GetHashCode()}",
-                Value = GetHashCode(),
+                DataAfterObject = $"Some text after object at {GetHashCode()}",                
                 SubData = new SubData
                 {
                     Info = $"Info at {GetHashCode()}"
                 },
                 Names = new[] {"Name1", "Name2"},
-                Products = { "product1", "product2", "product3" }
+                Products = { "product1", "product2", "product3" },
+                SubDatas =
+                {
+                    { "Test1", new SubData { Info = $"Test1 dictionary at {GetHashCode()}" } },
+                    { "Test2", new SubData { Info = $"Test2 dictionary at {GetHashCode()}" } }
+                }
             };
 
             cut.Serialize(data, Filename);
@@ -49,6 +53,15 @@ namespace Toolbox.Xml.Serialisation.Test
                 Assert.AreEqual(data.Names[i], read.Names[i], $"Names[{i}] differ");
             }
             Assert.AreEqual(data.Products.Count, read.Products.Count);
+            for (var i = 0; i < data.Products.Count; i++)
+            {
+                Assert.AreEqual(data.Products[i], read.Products[i], $"Products[{i}] differ");
+            }
+            Assert.AreEqual(data.SubDatas.Count, read.SubDatas.Count);
+            foreach (var key in data.SubDatas.Keys)
+            {
+                Assert.AreEqual(data.SubDatas[key].Info, read.SubDatas[key].Info);
+            }
         }
 
         [TestMethod]
@@ -75,7 +88,6 @@ namespace Toolbox.Xml.Serialisation.Test
                 Name = null,
                 Number = 0.42M + GetHashCode(),
                 DataAfterObject = $"Some text after object at {GetHashCode()}",
-                Value = GetHashCode(),
                 SubData = new BadSubData($"Info at {GetHashCode()}"),
                 Names = new[] { "Name1", "Name2" },
             };
@@ -105,7 +117,6 @@ namespace Toolbox.Xml.Serialisation.Test
                 Name = null,
                 Number = 0.42M + GetHashCode(),
                 DataAfterObject = $"Some text after object at {GetHashCode()}",
-                Value = GetHashCode(),
                 SubData = new DerivedSubData
                 {
                     Info = $"Info at {GetHashCode()}",

@@ -114,6 +114,23 @@ namespace Toolbox.Xml.Serialization
             {
                 return SerializeString(name, (string)value);
             }
+            else if (type.IsGenericType && type.GetGenericTypeDefinition()==typeof(KeyValuePair<,>))
+            {
+                var element = new XElement(name);
+                var types = type.GetGenericArguments();
+                var keyValue = type.GetProperty("Key").GetValue(value);
+                var valueValue = type.GetProperty("Value").GetValue(value);
+
+                var keyElement = SerializeValue("Key", keyValue, types[0]);
+                var valueElement = SerializeValue("Value", valueValue, types[1]);
+
+                if (keyElement == null || valueElement == null) return null;
+
+                element.Add(keyElement, valueElement);
+
+                return element;
+                
+            }
             else if (type.IsValueType)
             {
                 return SerializeValueType(name, value);
@@ -247,7 +264,10 @@ namespace Toolbox.Xml.Serialization
 
             if (type == typeof(string))
                 return DeserializeString(element);
-            
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                return DeserializeKeyValuePair(element, type);
+
             if (type.IsValueType)
                 return DeserializeValueType(element, type);
 
@@ -270,6 +290,17 @@ namespace Toolbox.Xml.Serialization
             }
 
             return obj;
+        }
+
+        private object DeserializeKeyValuePair(XElement element, Type type)
+        {
+            var types = type.GetGenericArguments();
+            var keyValue = DeserializeValue(element.Element("Key"), types[0]);
+            var valueValue = DeserializeValue(element.Element("Value"), types[1]);
+
+            var kvp = type.GetConstructor(types).Invoke(new[] { keyValue, valueValue });
+
+            return kvp;
         }
 
         private object DeserializeArray(XElement element, Type type)
