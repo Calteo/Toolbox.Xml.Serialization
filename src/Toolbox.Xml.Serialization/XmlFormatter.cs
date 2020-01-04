@@ -1,28 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace Toolbox.Xml.Serialization
 {
-    /// <summary>
-    /// The basic formatter class.
-    /// </summary>
-    /// <typeparam name="T">A class with a default constructor.</typeparam>
-    public class XmlFormatter<T> where T : class, new()
+    public class XmlFormatter
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="XmlFormatter{T}"/>.
+        /// </summary>
+        /// <param name="type">The root type. Must implement a default constructor.</param>
+        public XmlFormatter(Type type)
+        {
+            if (!type.IsClass)
+                throw new ArgumentException("only classes can be serialized", nameof(type));
+            if (type.GetConstructor(Type.EmptyTypes) == null)
+                throw new ArgumentException("only classes with default constructor can be serialized", nameof(type));
+
+            RootType = type;
+        }
+
+        private Type RootType { get; }
+
         /// <summary>
         /// Serializes an object to a file.
         /// </summary>
         /// <param name="obj">The object to serialize</param>
         /// <param name="fileName">a filename</param>
         /// <param name="saveOptions">options for saving</param>
-        public void Serialize(T obj, string fileName, SaveOptions saveOptions = SaveOptions.OmitDuplicateNamespaces)
+        public void Serialize(object obj, string fileName, SaveOptions saveOptions = SaveOptions.OmitDuplicateNamespaces)
         {
             var document = Serialize(obj);
             document.Save(fileName, saveOptions);
@@ -33,27 +42,31 @@ namespace Toolbox.Xml.Serialization
         private const string TypeName = "type";
         private const string SystemNamespacePrefix = "sys";
 
-        private XNamespace SystemNamespace = "https://github.com/Calteo/Toolbox.Xml.Serialization";
-
+        private readonly XNamespace SystemNamespace = "https://github.com/Calteo/Toolbox.Xml.Serialization";
 
         private Dictionary<Type, string> ExtendedTypes { get; } = new Dictionary<Type, string>();
         private XAttribute GetExtendedTypeAttribute(Type type)
         {
             if (!ExtendedTypes.TryGetValue(type, out string name))
-            {                
+            {
                 name = $"t{ExtendedTypes.Count + 1}";
                 ExtendedTypes[type] = name;
             }
             return new XAttribute(SystemNamespace + TypeName, name);
         }
-        
-        private XDocument Serialize(T obj)
+
+        private XDocument Serialize(object obj)
         {
             ExtendedTypes.Clear();
 
+            var type = obj.GetType();
+
+            if (type != RootType)
+                throw new ArgumentException($"object is not of type {RootType.FullName}", nameof(obj));
+
             var document = new XDocument();
 
-            var root = SerializeObject(typeof(T).Name, obj, typeof(T));
+            var root = SerializeObject(type.Name, obj, type);
             if (ExtendedTypes.Count > 0)
             {
                 root.Add(new XAttribute(XNamespace.Xmlns + SystemNamespacePrefix, SystemNamespace));
@@ -86,12 +99,12 @@ namespace Toolbox.Xml.Serialization
             {
                 var propertyElement = Serialize(obj, property);
                 if (propertyElement != null)
-                    element.Add(propertyElement);            
+                    element.Add(propertyElement);
             }
 
             return element;
         }
-        
+
         private XElement Serialize(object obj, PropertyInfo property)
         {
             if (!property.CanRead || !property.CanWrite || property.GetIndexParameters().Length != 0) return null;
@@ -114,7 +127,7 @@ namespace Toolbox.Xml.Serialization
             {
                 return SerializeString(name, (string)value);
             }
-            else if (type.IsGenericType && type.GetGenericTypeDefinition()==typeof(KeyValuePair<,>))
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
             {
                 var element = new XElement(name);
                 var types = type.GetGenericArguments();
@@ -129,7 +142,7 @@ namespace Toolbox.Xml.Serialization
                 element.Add(keyElement, valueElement);
 
                 return element;
-                
+
             }
             else if (type.IsValueType)
             {
@@ -160,11 +173,11 @@ namespace Toolbox.Xml.Serialization
         }
 
         private XElement SerializeArray(string name, Array value, Type expectedType)
-        {            
+        {
             if (value.Rank != 1) return null;
 
             var element = new XElement(name);
-            
+
 
             for (var i = 0; i < value.Length; i++)
             {
@@ -208,7 +221,7 @@ namespace Toolbox.Xml.Serialization
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns>The deserialized object</returns>
-        public T Deserialize(string fileName)
+        public object Deserialize(string fileName)
         {
             var document = XDocument.Load(fileName, LoadOptions.SetLineInfo);
 
@@ -220,11 +233,11 @@ namespace Toolbox.Xml.Serialization
                 DeserializeTypes.Add(attribute.Name.LocalName, Type.GetType(attribute.Value, true));
             }
 
-            return (T)DeserializeObject(document.Root, typeof(T));
+            return DeserializeObject(document.Root, RootType);
         }
-       
-        private object DeserializeObject(XElement element, Type type) 
-        {            
+
+        private object DeserializeObject(XElement element, Type type)
+        {
             var obj = Activator.CreateInstance(type);
             var properties = GetProperties(type);
 
@@ -318,7 +331,7 @@ namespace Toolbox.Xml.Serialization
 
         private string DeserializeString(XElement element)
         {
-            return (element.FirstNode as XText)?.Value;            
+            return (element.FirstNode as XText)?.Value;
         }
 
         private object DeserializeValueType(XElement element, Type type)
