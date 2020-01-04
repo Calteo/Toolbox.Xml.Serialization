@@ -29,15 +29,31 @@ class DataContainer
 ```
 Here the properties `Name` and `ZipCode` get serialized. `Passcode` is obmitted due to the `NotSerialized` attribute. While `OtherData1` and `OtherData1` will be included if `FunkyData` has a default constructor. For the content of `FunkyData` the same rules apply.
     
-## usage
+## Usage
 
 Simply create a instance of `XmlFormatter<T>` and use the methods.
 ```
-void Serialize(T obj, string fileName)
+var myObject = new MyObject(); // or do your own thing
+var formatter = new XmlFormatter<MyObject>();
+formatter.Serialize(myObject, "myObjectFile.xml");
 ```
 to serialize and
 ```
-T Deserialize(string fileName)
+var formatter = new XmlFormatter<MyObject>();
+var myObject = formatter.Deserialize("myObjectFile.xml");
+```
+to deserialize.
+
+You can to use a version without the generic parameter, i.e. if you get the type as a variable of `Type`.
+```
+var myObject = ...; // or do your own thing
+var formatter = new XmlFormatter(myObject.GetType());
+formatter.Serialize(myObject, "myObjectFile.xml");
+```
+to serialize and
+```
+var formatter = new XmlFormatter(typeof(MyObject));
+var myObject = (MyObject)formatter.Deserialize("myObjectFile.xml");
 ```
 to deserialize.
 

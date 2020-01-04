@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Xml.Linq;
-
-namespace Toolbox.Xml.Serialization
+﻿namespace Toolbox.Xml.Serialization
 {
     /// <summary>
     /// The basic formatter class.
