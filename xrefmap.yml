@@ -1,0 +1,103 @@
+### YamlMime:XRefMap
+sorted: true
+references:
+- uid: Toolbox.Xml.Serialization
+  name: Toolbox.Xml.Serialization
+  href: api/Toolbox.Xml.Serialization.html
+  commentId: N:Toolbox.Xml.Serialization
+  fullName: Toolbox.Xml.Serialization
+  nameWithType: Toolbox.Xml.Serialization
+- uid: Toolbox.Xml.Serialization.NotSerializedAttribute
+  name: NotSerializedAttribute
+  href: api/Toolbox.Xml.Serialization.NotSerializedAttribute.html
+  commentId: T:Toolbox.Xml.Serialization.NotSerializedAttribute
+  fullName: Toolbox.Xml.Serialization.NotSerializedAttribute
+  nameWithType: NotSerializedAttribute
+- uid: Toolbox.Xml.Serialization.XmlFormatter
+  name: XmlFormatter
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html
+  commentId: T:Toolbox.Xml.Serialization.XmlFormatter
+  fullName: Toolbox.Xml.Serialization.XmlFormatter
+  nameWithType: XmlFormatter
+- uid: Toolbox.Xml.Serialization.XmlFormatter.#ctor(System.Type)
+  name: XmlFormatter(Type)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter__ctor_System_Type_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter.#ctor(System.Type)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.XmlFormatter(System.Type)
+  nameWithType: XmlFormatter.XmlFormatter(Type)
+- uid: Toolbox.Xml.Serialization.XmlFormatter.#ctor*
+  name: XmlFormatter
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter__ctor_
+  commentId: Overload:Toolbox.Xml.Serialization.XmlFormatter.#ctor
+  isSpec: "True"
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.XmlFormatter
+  nameWithType: XmlFormatter.XmlFormatter
+- uid: Toolbox.Xml.Serialization.XmlFormatter.Deserialize(System.String)
+  name: Deserialize(String)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter_Deserialize_System_String_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter.Deserialize(System.String)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.Deserialize(System.String)
+  nameWithType: XmlFormatter.Deserialize(String)
+- uid: Toolbox.Xml.Serialization.XmlFormatter.Deserialize*
+  name: Deserialize
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter_Deserialize_
+  commentId: Overload:Toolbox.Xml.Serialization.XmlFormatter.Deserialize
+  isSpec: "True"
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.Deserialize
+  nameWithType: XmlFormatter.Deserialize
+- uid: Toolbox.Xml.Serialization.XmlFormatter.Serialize(System.Object,System.String,System.Xml.Linq.SaveOptions)
+  name: Serialize(Object, String, SaveOptions)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter_Serialize_System_Object_System_String_System_Xml_Linq_SaveOptions_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter.Serialize(System.Object,System.String,System.Xml.Linq.SaveOptions)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.Serialize(System.Object, System.String, System.Xml.Linq.SaveOptions)
+  nameWithType: XmlFormatter.Serialize(Object, String, SaveOptions)
+- uid: Toolbox.Xml.Serialization.XmlFormatter.Serialize*
+  name: Serialize
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter_Serialize_
+  commentId: Overload:Toolbox.Xml.Serialization.XmlFormatter.Serialize
+  isSpec: "True"
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.Serialize
+  nameWithType: XmlFormatter.Serialize
+- uid: Toolbox.Xml.Serialization.XmlFormatter`1
+  name: XmlFormatter<T>
+  href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html
+  commentId: T:Toolbox.Xml.Serialization.XmlFormatter`1
+  name.vb: XmlFormatter(Of T)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter<T>
+  fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T)
+  nameWithType: XmlFormatter<T>
+  nameWithType.vb: XmlFormatter(Of T)
+- uid: Toolbox.Xml.Serialization.XmlFormatter`1.#ctor
+  name: XmlFormatter()
+  href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1__ctor
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter`1.#ctor
+  fullName: Toolbox.Xml.Serialization.XmlFormatter<T>.XmlFormatter()
+  fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T).XmlFormatter()
+  nameWithType: XmlFormatter<T>.XmlFormatter()
+  nameWithType.vb: XmlFormatter(Of T).XmlFormatter()
+- uid: Toolbox.Xml.Serialization.XmlFormatter`1.#ctor*
+  name: XmlFormatter
+  href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1__ctor_
+  commentId: Overload:Toolbox.Xml.Serialization.XmlFormatter`1.#ctor
+  isSpec: "True"
+  fullName: Toolbox.Xml.Serialization.XmlFormatter<T>.XmlFormatter
+  fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T).XmlFormatter
+  nameWithType: XmlFormatter<T>.XmlFormatter
+  nameWithType.vb: XmlFormatter(Of T).XmlFormatter
+- uid: Toolbox.Xml.Serialization.XmlFormatter`1.Deserialize(System.String)
+  name: Deserialize(String)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1_Deserialize_System_String_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter`1.Deserialize(System.String)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter<T>.Deserialize(System.String)
+  fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T).Deserialize(System.String)
+  nameWithType: XmlFormatter<T>.Deserialize(String)
+  nameWithType.vb: XmlFormatter(Of T).Deserialize(String)
+- uid: Toolbox.Xml.Serialization.XmlFormatter`1.Deserialize*
+  name: Deserialize
+  href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1_Deserialize_
+  commentId: Overload:Toolbox.Xml.Serialization.XmlFormatter`1.Deserialize
+  isSpec: "True"
+  fullName: Toolbox.Xml.Serialization.XmlFormatter<T>.Deserialize
+  fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T).Deserialize
+  nameWithType: XmlFormatter<T>.Deserialize
+  nameWithType.vb: XmlFormatter(Of T).Deserialize
