@@ -57,10 +57,10 @@
       "output": {
         ".html": {
           "relative_path": "api/index.html",
-          "hash": "KXYvmAVtwFx9Q2WBtpV8hQ=="
+          "hash": "YdVSYAwUg78e7/gDluLVkQ=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -81,10 +81,10 @@
       "output": {
         ".html": {
           "relative_path": "articles/intro.html",
-          "hash": "wXxROGMRXuZR40k6n50R7A=="
+          "hash": "K6HkZm3DJoM3NqmQC5wg9w=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -105,10 +105,10 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "3ziaAF8PrqbBfeLQLkc+Hg=="
+          "hash": "GrMQCEFj99yQmdiTXFCggQ=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -140,17 +140,17 @@
           "total_file_count": 0,
           "skipped_file_count": 0
         },
+        "ConceptualDocumentProcessor": {
+          "can_incremental": true,
+          "incrementalPhase": "build",
+          "total_file_count": 3,
+          "skipped_file_count": 0
+        },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 4,
           "skipped_file_count": 4
-        },
-        "ConceptualDocumentProcessor": {
-          "can_incremental": true,
-          "incrementalPhase": "build",
-          "total_file_count": 3,
-          "skipped_file_count": 3
         }
       }
     },
