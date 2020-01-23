@@ -7,12 +7,15 @@ using System.Xml.Linq;
 
 namespace Toolbox.Xml.Serialization
 {
+    /// <summary>
+    /// The basic formatter class
+    /// </summary>
     public class XmlFormatter
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="XmlFormatter{T}"/>.
+        /// Initializes a new instance of <see cref="XmlFormatter"/> instance.
         /// </summary>
-        /// <param name="type">The root type. Must implement a default constructor.</param>
+        /// <param name="type">The root type. It must implement a default constructor.</param>
         public XmlFormatter(Type type)
         {
             if (!type.IsClass)

@@ -1,9 +1,9 @@
 ﻿namespace Toolbox.Xml.Serialization
 {
     /// <summary>
-    /// The basic formatter class.
+    /// The generic formatter class.
     /// </summary>
-    /// <typeparam name="T">A class with a default constructor.</typeparam>
+    /// <typeparam name="T">A type with a default constructor.</typeparam>
     public class XmlFormatter<T> : XmlFormatter where T : class, new()
     {
         /// <summary>

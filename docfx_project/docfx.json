@@ -3,9 +3,9 @@
     {
       "src": [
         {
-		  "src": "../src/Toolbox.Xml.Serialization",
+          "src": "../",
           "files": [
-            "**"
+            "src/Toolbox.Xml.Serialization/Toolbox.Xml.Serialization.csproj"
           ]
         }
       ],
@@ -45,15 +45,15 @@
         ],
         "exclude": [
           "obj/**",
-          "_site/**"
+          "docs/**"
         ]
       }
     ],
-    "dest": "_site",
+    "dest": "docs",
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
-      "statictoc"
+      "default"
     ],
     "postProcessors": [],
     "markdownEngineName": "markdig",
