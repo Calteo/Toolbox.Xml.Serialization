@@ -5,7 +5,7 @@
         {
           "src": "../",
           "files": [
-            "src/Toolbox.Xml.Serialization/Toolbox.Xml.Serialization.csproj"
+            "src/Toolbox.Xml.Serialization/*.csproj"
           ]
         }
       ],
