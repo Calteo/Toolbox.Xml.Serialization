@@ -16,11 +16,13 @@ Param
     [String]$Token
   )
 
-echo "init git"
+Write-Host --ForegroundColor Cyan "init git"
 git config --global credential.helper store
 Add-Content "$HOME\.git-credentials" "https://$Token:x-oauth-basic@github.com`n"
 git config --global user.email $EMail
 git config --global user.name $User
+
+git config --global core.autocrlf false
 
 $source=$pwd
 $repro=[System.IO.Path]::GetFullPath("$pwd\..\$Project-Documentation")
@@ -43,6 +45,6 @@ cp -r "$source\$SiteFolder\*" .
 echo "push the new docs to the gh-pages branch"
 git add . -A
 git commit -m "update generated documentation"
-git push origin gh-pages -q
+git push origin gh-pages
 
 cd $source
