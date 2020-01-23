@@ -16,7 +16,7 @@ Param
     [String]$Token
   )
 
-Write-Host --ForegroundColor Cyan "init git"
+Write-Host -ForegroundColor Cyan "init git"
 git config --global credential.helper store
 Add-Content "$HOME\.git-credentials" "https://$Token:x-oauth-basic@github.com`n"
 git config --global user.email $EMail
@@ -27,22 +27,23 @@ git config --global core.autocrlf false
 $source=$pwd
 $repro=[System.IO.Path]::GetFullPath("$pwd\..\$Project-Documentation")
 
-echo "removing temporary doc directory $repro"
+Write-Host -ForegroundColor Cyan "removing doc directory $repro"
 rm $repro -Force -Recurse -ErrorAction SilentlyContinue
+Write-Host -ForegroundColor Cyan "create doc directory $repro"
 mkdir $repro | Out-Null
 
 $url = "https://github.com/$User/$Project.git"
-echo "cloning the repo $url with the gh-pages branch"
-git clone $url --branch gh-pages $repro
+Write-Host -ForegroundColor Cyan "cloning the repo $url with the gh-pages branch"
+git clone $url --branch gh-pages $repro 
 
-echo "clear repo directory"
+Write-Host -ForegroundColor Cyan "clear repo directory"
 cd $repro
 git rm -r *
 
-echo "copy documentation into the repo"
+Write-Host -ForegroundColor Cyan "copy documentation into the repo"
 cp -r "$source\$SiteFolder\*" .
 
-echo "push the new docs to the gh-pages branch"
+Write-Host -ForegroundColor Cyan "push the new docs to the gh-pages branch"
 git add . -A
 git commit -m "update generated documentation"
 git push origin gh-pages
