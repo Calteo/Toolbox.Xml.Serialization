@@ -23,14 +23,15 @@ git config --global user.email $EMail
 git config --global user.name $User
 
 $source=$pwd
-$repro="$pwd\..\$Project-Documentation"
+$repro=[System.IO.Path]::GetFullPath("$pwd\..\$Project-Documentation")
 
 echo "removing temporary doc directory $repro"
 rm $repro -Force -Recurse -ErrorAction SilentlyContinue
 mkdir $repro | Out-Null
 
-echo "cloning the repo with the gh-pages branch"
-git clone "https://github.com/$User/$Project.git" --branch gh-pages $repro
+$url = "https://github.com/$User/$Project.git"
+echo "cloning the repo $url with the gh-pages branch"
+git clone $url --branch gh-pages $repro
 
 echo "clear repo directory"
 cd $repro
@@ -42,6 +43,6 @@ cp -r "$source\$SiteFolder\*" .
 echo "push the new docs to the gh-pages branch"
 git add . -A
 git commit -m "update generated documentation"
-git push origin gh-pages
+git push origin gh-pages -q
 
 cd $source
