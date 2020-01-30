@@ -34,7 +34,7 @@ mkdir $repro | Out-Null
 
 $url = "https://github.com/$User/$Project.git"
 Write-Host -ForegroundColor Cyan "cloning the repo $url with the gh-pages branch"
-git clone $url --branch gh-pages $repro 
+git clone $url --branch gh-pages $repro -q
 
 Write-Host -ForegroundColor Cyan "clear repo directory"
 cd $repro
@@ -46,6 +46,6 @@ cp -r "$source\$SiteFolder\*" .
 Write-Host -ForegroundColor Cyan "push the new docs to the gh-pages branch"
 git add . -A
 git commit -m "update generated documentation"
-git push origin gh-pages
+git push origin gh-pages -q
 
 cd $source
