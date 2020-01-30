@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Introduction </title>
+    <title>Usage without generics </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Introduction ">
+    <meta name="title" content="Usage without generics ">
     <meta name="generator" content="docfx 2.48.1.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
@@ -67,26 +67,19 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="introduction">Introduction</h1>
+<h1 id="usage-without-generics">Usage without generics</h1>
 
-<p>The basic idea is the serialize the maximum possible and do not bother
-about the the things that can not be serialized. They are simple obmitted.
-Also no declaration (i.e. <code>Serializable</code> attribute) is neccessary to include an object in the process.
-It is simply assumed that you want to serialize all of the referenced objects.</p>
-<ul>
-<li>Serializes all properties with getter and setter, if
-<ul>
-<li>it is a simple type witch can be converted to string.
-So all basic types of <code>int</code>, <code>bool</code>, <code>DateTime</code>, <code>string</code>, <code>float</code>,<code>decimal</code> and ... are coverved.</li>
-<li>or the object implements a default constructor.
-Otherwise it would hard to construct these objects on deserialization.</li>
-</ul>
-</li>
-</ul>
-<p>If a property type implements <code>ICollection&lt;T&gt;</code> its contents get also serialized.
-So the generic collections like <code>List&lt;T&gt;</code> also get serialized.</p>
-<p>Properties can be marked with the attribute <a class="xref" href="../api/Toolbox.Xml.Serialization.NotSerializedAttribute.html">NotSerializedAttribute</a>
-so they get not included.</p>
+<p>You can to use a version without the generic parameter, i.e. if you get the type as a variable of <code>Type</code>.
+The class to use ist <a class="xref" href="../api/Toolbox.Xml.Serialization.XmlFormatter.html">XmlFormatter</a>.</p>
+<pre><code>var myObject = ...; // or do your own thing
+var formatter = new XmlFormatter(myObject.GetType());
+formatter.Serialize(myObject, &quot;myObjectFile.xml&quot;);
+</code></pre>
+<p>to serialize and</p>
+<pre><code>var formatter = new XmlFormatter(typeof(MyObject));
+var myObject = (MyObject)formatter.Deserialize(&quot;myObjectFile.xml&quot;);
+</code></pre>
+<p>to deserialize.</p>
 </article>
           </div>
           
@@ -95,7 +88,7 @@ so they get not included.</p>
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/Calteo/Toolbox.Xml.Serialization/blob/master/docfx_project/articles/intro.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/Calteo/Toolbox.Xml.Serialization/blob/master/docfx_project/articles/nogenerics.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
