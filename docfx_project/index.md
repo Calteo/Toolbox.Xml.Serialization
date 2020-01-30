@@ -1,6 +1,5 @@
 # Toolbox.Xml.Serialization
+A simple framework to serialize objects to xml.
 
-This is a small compoment for convering an object to xml and back.
-
-Documentation Test 2
-
+Often we need to serialize data object to xml and various techniques can be used. 
+This is a simple compoment to handle the most use cases. 
