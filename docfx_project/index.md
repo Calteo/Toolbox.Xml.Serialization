@@ -2,5 +2,5 @@
 
 This is a small compoment for convering an object to xml and back.
 
-Documentation Test 1
+Documentation Test 2
 
