@@ -8,7 +8,7 @@
     <title>Introduction </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Introduction ">
-    <meta name="generator" content="docfx 2.48.1.0">
+    <meta name="generator" content="docfx 2.51.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -78,6 +78,13 @@ It is simply assumed that you want to serialize all of the referenced objects.</
 <ul>
 <li>it is a simple type witch can be converted to string.
 So all basic types of <code>int</code>, <code>bool</code>, <code>DateTime</code>, <code>string</code>, <code>float</code>,<code>decimal</code> and ... are coverved.</li>
+<li>Currently the following collections are included, if the element types are serializeable.
+<ul>
+<li>Array - even multi dimensionals.</li>
+<li>List<t></t></li>
+<li>Dictionary&lt;TK,TV&gt;</li>
+</ul>
+</li>
 <li>or the object implements a default constructor.
 Otherwise it would hard to construct these objects on deserialization.</li>
 </ul>
