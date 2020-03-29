@@ -8,6 +8,10 @@ It is simply assumed that you want to serialize all of the referenced objects.
 * Serializes all properties with getter and setter, if
   * it is a simple type witch can be converted to string. 
     So all basic types of `int`, `bool`, `DateTime`, `string`, `float`,`decimal` and ... are coverved.
+  * Currently the following collections are included, if the element types are serializeable.
+      * Array - even multi dimensionals. 
+      * List<T>
+      * Dictionary<TK,TV>
   * or the object implements a default constructor.
     Otherwise it would hard to construct these objects on deserialization.
   

@@ -54,6 +54,8 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ArrayTest.cs" />
+    <Compile Include="Data\ArrayData.cs" />
     <Compile Include="Data\BadSubData.cs" />
     <Compile Include="Data\DerivedSubData.cs" />
     <Compile Include="Data\SomeData.cs" />

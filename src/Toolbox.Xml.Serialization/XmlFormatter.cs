@@ -175,21 +175,47 @@ namespace Toolbox.Xml.Serialization
             }
         }
 
+        private const string DimensionAttribute = "Dimension";
+
         private XElement SerializeArray(string name, Array value, Type expectedType)
         {
-            if (value.Rank != 1) return null;
-
             var element = new XElement(name);
 
-
-            for (var i = 0; i < value.Length; i++)
+            var lengths = new List<string>();
+            for (var i = 0; i < value.Rank; i++)
             {
-                var elementValue = value.GetValue(i);
+                lengths.Add(value.GetLength(i).ToString());
+            }
+
+            element.Add(new XAttribute(DimensionAttribute, string.Join(",", lengths)));
+
+            var index = new int[value.Rank];
+            var upperBound = new int[value.Rank];
+
+            for (var i = 0; i < value.Rank; i++)
+            {
+                upperBound[i] = value.GetUpperBound(i);
+            }
+
+            var dimension = value.Rank-1;
+
+            while (dimension >= 0)
+            {
+                var elementValue = value.GetValue(index);
+
                 var itemElement = SerializeValue(ItemName, elementValue, expectedType.GetElementType());
                 if (itemElement != null)
                 {
                     element.Add(itemElement);
                 }
+
+                while (dimension>=0 && ++index[dimension] > upperBound[dimension])
+                {
+                    index[dimension] = 0;
+                    dimension--;
+                }
+                if (dimension >= 0)
+                    dimension = value.Rank - 1;
             }
 
             return element;
@@ -323,11 +349,28 @@ namespace Toolbox.Xml.Serialization
         {
             var items = element.Elements().Where(e => e.Name.LocalName == ItemName).ToArray();
             var elementType = type.GetElementType();
-            var obj = Array.CreateInstance(type.GetElementType(), items.Length);
-            for (var i = 0; i < items.Length; i++)
+            var upperBound = element.Attribute(DimensionAttribute).Value.Split(',').Select(d => int.Parse(d)).ToArray();
+
+            var obj = Array.CreateInstance(type.GetElementType(), upperBound);
+
+            var index = new int[upperBound.Length];
+
+            var dimension = obj.Rank - 1;
+            var i = 0;
+
+            while (dimension >= 0)
             {
                 var value = DeserializeValue(items[i], elementType);
-                obj.SetValue(value, i);
+                obj.SetValue(value, index);
+                i++;
+
+                while (dimension>=0 && ++index[dimension] >= upperBound[dimension])
+                {
+                    index[dimension] = 0;
+                    dimension--;
+                }
+                if (dimension >= 0)
+                    dimension = obj.Rank - 1;
             }
             return obj;
         }

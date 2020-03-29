@@ -9,7 +9,7 @@
     <Info>Info at 64019460</Info>
   </SubData>
   <DataAfterObject>Some text after object at 64019460</DataAfterObject>
-  <Names>
+  <Names Dimension="2">
     <Item>Name1</Item>
     <Item>Name2</Item>
   </Names>
