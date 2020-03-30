@@ -162,7 +162,10 @@ namespace Toolbox.Xml.Serialization
                     {
                         SerializeStack(type, value, element);
                     }
-                    
+                    else if (IsGenericType(type, typeof(Queue<>)))
+                    {
+                        SerializeQueue(type, value, element);
+                    }
                 }
                 return element;
             }
@@ -197,7 +200,12 @@ namespace Toolbox.Xml.Serialization
             var interfaceType = GetGenericInterface(type, typeof(IEnumerable<>));
             SerializeICollection(interfaceType, value, element);
         }
-                
+
+        private void SerializeQueue(Type type, object value, XElement element)
+        {
+            var interfaceType = GetGenericInterface(type, typeof(IEnumerable<>));
+            SerializeICollection(interfaceType, value, element);
+        }
 
         private const string DimensionAttribute = "Dimension";
 
@@ -349,6 +357,10 @@ namespace Toolbox.Xml.Serialization
                 {
                     DeserializeStack(type, obj, element);
                 }
+                else if (IsGenericType(type, typeof(Queue<>)))
+                {
+                    DeserializeQueue(type, obj, element);
+                }
             }
 
             return obj;
@@ -379,6 +391,20 @@ namespace Toolbox.Xml.Serialization
                 type.GetMethod("Push").Invoke(obj, new[] { item });
             }
         }
+
+        private void DeserializeQueue(Type type, object obj, XElement element)
+        {
+            var expectedItemType = type.GetGenericArguments()[0];            
+
+            type.GetMethod("Clear").Invoke(obj, null);
+            var collectionElement = element.Element(ItemsName);
+            foreach (var itemElement in collectionElement.Elements(ItemName))
+            {                
+                var item = DeserializeValue(itemElement, expectedItemType);
+                type.GetMethod("Enqueue").Invoke(obj, new[] { item });
+            }
+        }
+
 
         private object DeserializeKeyValuePair(XElement element, Type type)
         {
