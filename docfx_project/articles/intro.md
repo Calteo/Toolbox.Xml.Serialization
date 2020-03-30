@@ -12,6 +12,7 @@ It is simply assumed that you want to serialize all of the referenced objects.
       * Array - even multi dimensionals. 
       * List<T>
       * Dictionary<TK,TV>
+      * Stack<T>
   * or the object implements a default constructor.
     Otherwise it would hard to construct these objects on deserialization.
   

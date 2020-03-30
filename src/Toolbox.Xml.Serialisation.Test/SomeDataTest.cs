@@ -112,8 +112,6 @@ namespace Toolbox.Xml.Serialisation.Test
             }
         }
 
-
-
         [TestMethod]
         public void WriteAndReadCultureName()
         {

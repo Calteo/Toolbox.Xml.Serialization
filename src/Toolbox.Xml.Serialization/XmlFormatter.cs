@@ -145,7 +145,6 @@ namespace Toolbox.Xml.Serialization
                 element.Add(keyElement, valueElement);
 
                 return element;
-
             }
             else if (type.IsValueType)
             {
@@ -156,24 +155,49 @@ namespace Toolbox.Xml.Serialization
                 var element = SerializeObject(name, value, expectedType);
                 if (element != null)
                 {
-                    var genericCollectionInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>));
-                    if (genericCollectionInterface != null)
+                    Type interfaceType;
+                    if ((interfaceType = GetGenericInterface(type, typeof(ICollection<>))) != null)
+                        SerializeICollection(interfaceType, value, element);
+                    else if (IsGenericType(type, typeof(Stack<>)))
                     {
-                        var expectedItemType = genericCollectionInterface.GetGenericArguments()[0];
-                        dynamic collection = value;
-                        var collectionElement = new XElement(ItemsName);
-                        element.Add(collectionElement);
-                        foreach (var item in collection)
-                        {
-                            var itemElement = SerializeValue(ItemName, (object)item, expectedItemType);
-                            if (itemElement != null)
-                                collectionElement.Add(itemElement);
-                        }
+                        SerializeStack(type, value, element);
                     }
+                    
                 }
                 return element;
             }
         }
+
+        private static Type GetGenericInterface(Type type, Type interfaceType)
+        {
+            return type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
+        }
+
+        private static bool IsGenericType(Type type, Type genericType)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == genericType;
+        }
+
+        private void SerializeICollection(Type interfaceType, object value, XElement element)
+        {
+            var expectedItemType = interfaceType.GetGenericArguments()[0];
+            dynamic collection = value;
+            var collectionElement = new XElement(ItemsName);
+            element.Add(collectionElement);
+            foreach (var item in collection)
+            {
+                var itemElement = SerializeValue(ItemName, (object)item, expectedItemType);
+                if (itemElement != null)
+                    collectionElement.Add(itemElement);
+            }
+        }
+
+        private void SerializeStack(Type type, object value, XElement element)
+        {
+            var interfaceType = GetGenericInterface(type, typeof(IEnumerable<>));
+            SerializeICollection(interfaceType, value, element);
+        }
+                
 
         private const string DimensionAttribute = "Dimension";
 
@@ -316,22 +340,44 @@ namespace Toolbox.Xml.Serialization
             var obj = DeserializeObject(element, type);
             if (obj != null)
             {
-                var genericCollectionInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>));
-                if (genericCollectionInterface != null)
+                Type interfaceType;
+                if ((interfaceType = GetGenericInterface(type, typeof(ICollection<>))) != null)
                 {
-                    var expectedItemType = genericCollectionInterface.GetGenericArguments()[0];
-
-                    genericCollectionInterface.GetMethod("Clear").Invoke(obj, null);
-                    var collectionElement = element.Element(ItemsName);
-                    foreach (var itemElement in collectionElement.Elements(ItemName))
-                    {
-                        var item = DeserializeValue(itemElement, expectedItemType);
-                        genericCollectionInterface.GetMethod("Add").Invoke(obj, new[] { item });
-                    }
+                    DeserializeICollection(interfaceType, obj, element);
+                }
+                else if (IsGenericType(type, typeof(Stack<>)))
+                {
+                    DeserializeStack(type, obj, element);
                 }
             }
 
             return obj;
+        }
+
+        private void DeserializeICollection(Type interfaceType, object obj, XElement element)
+        {
+            var expectedItemType = interfaceType.GetGenericArguments()[0];
+
+            interfaceType.GetMethod("Clear").Invoke(obj, null);
+            var collectionElement = element.Element(ItemsName);
+            foreach (var itemElement in collectionElement.Elements(ItemName))
+            {
+                var item = DeserializeValue(itemElement, expectedItemType);
+                interfaceType.GetMethod("Add").Invoke(obj, new[] { item });
+            }
+        }
+
+        private void DeserializeStack(Type type, object obj, XElement element)
+        {
+            var expectedItemType = type.GetGenericArguments()[0];
+
+            type.GetMethod("Clear").Invoke(obj, null);
+            var collectionElement = element.Element(ItemsName);
+            foreach (var itemElement in collectionElement.Elements(ItemName).Reverse())
+            {
+                var item = DeserializeValue(itemElement, expectedItemType);
+                type.GetMethod("Push").Invoke(obj, new[] { item });
+            }
         }
 
         private object DeserializeKeyValuePair(XElement element, Type type)
