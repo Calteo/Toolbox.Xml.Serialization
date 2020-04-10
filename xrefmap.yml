@@ -32,6 +32,12 @@ references:
   isSpec: "True"
   fullName: Toolbox.Xml.Serialization.XmlFormatter.XmlFormatter
   nameWithType: XmlFormatter.XmlFormatter
+- uid: Toolbox.Xml.Serialization.XmlFormatter.Deserialize(System.IO.Stream)
+  name: Deserialize(Stream)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter_Deserialize_System_IO_Stream_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter.Deserialize(System.IO.Stream)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.Deserialize(System.IO.Stream)
+  nameWithType: XmlFormatter.Deserialize(Stream)
 - uid: Toolbox.Xml.Serialization.XmlFormatter.Deserialize(System.String)
   name: Deserialize(String)
   href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter_Deserialize_System_String_
@@ -45,6 +51,12 @@ references:
   isSpec: "True"
   fullName: Toolbox.Xml.Serialization.XmlFormatter.Deserialize
   nameWithType: XmlFormatter.Deserialize
+- uid: Toolbox.Xml.Serialization.XmlFormatter.Serialize(System.Object,System.IO.Stream,System.Xml.Linq.SaveOptions)
+  name: Serialize(Object, Stream, SaveOptions)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter_Serialize_System_Object_System_IO_Stream_System_Xml_Linq_SaveOptions_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter.Serialize(System.Object,System.IO.Stream,System.Xml.Linq.SaveOptions)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.Serialize(System.Object, System.IO.Stream, System.Xml.Linq.SaveOptions)
+  nameWithType: XmlFormatter.Serialize(Object, Stream, SaveOptions)
 - uid: Toolbox.Xml.Serialization.XmlFormatter.Serialize(System.Object,System.String,System.Xml.Linq.SaveOptions)
   name: Serialize(Object, String, SaveOptions)
   href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter_Serialize_System_Object_System_String_System_Xml_Linq_SaveOptions_
@@ -84,6 +96,14 @@ references:
   fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T).XmlFormatter
   nameWithType: XmlFormatter<T>.XmlFormatter
   nameWithType.vb: XmlFormatter(Of T).XmlFormatter
+- uid: Toolbox.Xml.Serialization.XmlFormatter`1.Deserialize(System.IO.Stream)
+  name: Deserialize(Stream)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1_Deserialize_System_IO_Stream_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter`1.Deserialize(System.IO.Stream)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter<T>.Deserialize(System.IO.Stream)
+  fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T).Deserialize(System.IO.Stream)
+  nameWithType: XmlFormatter<T>.Deserialize(Stream)
+  nameWithType.vb: XmlFormatter(Of T).Deserialize(Stream)
 - uid: Toolbox.Xml.Serialization.XmlFormatter`1.Deserialize(System.String)
   name: Deserialize(String)
   href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1_Deserialize_System_String_
