@@ -1,4 +1,6 @@
-﻿namespace Toolbox.Xml.Serialization
+﻿using System.IO;
+
+namespace Toolbox.Xml.Serialization
 {
     /// <summary>
     /// The generic formatter class.
@@ -13,9 +15,25 @@
         {
         }
 
+        /// <summary>
+        /// Deserialize an object of type T from a file.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns>The deserialized object</returns>
         public new T Deserialize(string fileName)
         {
             return (T)base.Deserialize(fileName);
         }
+
+        /// <summary>
+        /// Deserialize an object of type T from a stream.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns>The deserialized object</returns>
+        public new T Deserialize(Stream stream)
+        {
+            return (T)base.Deserialize(stream);
+        }
+
     }
 }

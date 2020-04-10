@@ -16,11 +16,10 @@ It is simply assumed that you want to serialize all of the referenced objects.
       * Queue<T>
   * or the object implements a default constructor.
     Otherwise it would hard to construct these objects on deserialization.
+  * Generic types are also handled correctly.
   
 If a property type implements `ICollection<T>` its contents get also serialized. 
 So the generic collections like `List<T>` also get serialized.
   
 Properties can be marked with the attribute <xref:Toolbox.Xml.Serialization.NotSerializedAttribute> 
 so they get not included.
-
-

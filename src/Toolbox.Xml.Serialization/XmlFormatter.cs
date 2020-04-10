@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
@@ -36,8 +37,22 @@ namespace Toolbox.Xml.Serialization
         /// <param name="saveOptions">options for saving</param>
         public void Serialize(object obj, string fileName, SaveOptions saveOptions = SaveOptions.OmitDuplicateNamespaces)
         {
+            using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                Serialize(obj, stream, saveOptions);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an <see cref="object"/> to a <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="obj">The object to serialize</param>
+        /// <param name="stream">stream to write to</param>
+        /// <param name="saveOptions">options for saving</param>
+        public void Serialize(object obj, Stream stream, SaveOptions saveOptions = SaveOptions.OmitDuplicateNamespaces)
+        {
             var document = Serialize(obj);
-            document.Save(fileName, saveOptions);
+            document.Save(stream, saveOptions);
         }
 
         private const string ItemName = "Item";
@@ -89,6 +104,9 @@ namespace Toolbox.Xml.Serialization
             var type = obj.GetType();
             if (type.GetConstructor(Type.EmptyTypes) == null)
                 return null;
+
+            if (type.IsGenericType)
+                name = name.Replace('`', '-');
 
             var element = new XElement(name);
             if (expectedType != type)
@@ -284,7 +302,20 @@ namespace Toolbox.Xml.Serialization
         /// <returns>The deserialized object</returns>
         public object Deserialize(string fileName)
         {
-            var document = XDocument.Load(fileName, LoadOptions.SetLineInfo);
+            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                return Deserialize(stream);
+            }
+        }
+
+        /// <summary>
+        /// Deserialize an object from a stream.
+        /// </summary>
+        /// <param name="stream">The stream to read from</param>
+        /// <returns>The deserilized object</returns>
+        public object Deserialize(Stream stream)
+        {
+            var document = XDocument.Load(stream, LoadOptions.SetLineInfo);
 
             DeserializeTypes.Clear();
             var attributes = document.Root.Attributes().Where(a => a.Name.Namespace == SystemNamespace);
