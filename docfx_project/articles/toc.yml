@@ -4,5 +4,7 @@
   href: example.md
 - name: No generics
   href: nogenerics.md
+- name: Handlers
+  href: handlers.md
 - name: Disclaimer
   href: disclaimer.md

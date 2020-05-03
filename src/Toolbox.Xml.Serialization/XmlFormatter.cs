@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Xml.Linq;
 
 namespace Toolbox.Xml.Serialization
@@ -28,6 +29,20 @@ namespace Toolbox.Xml.Serialization
         }
 
         private Type RootType { get; }
+
+        private Dictionary<Type, List<MethodInfo>> SerializingMethods { get; } = new Dictionary<Type, List<MethodInfo>>();
+        private Dictionary<Type, List<MethodInfo>> SerializedMethods { get; } = new Dictionary<Type, List<MethodInfo>>();
+        private Dictionary<Type, List<MethodInfo>> DeserializingMethods { get; } = new Dictionary<Type, List<MethodInfo>>();
+        private Dictionary<Type, List<MethodInfo>> DeserializedMethods { get; } = new Dictionary<Type, List<MethodInfo>>();
+
+        private List<MethodInfo> GetHandlers<T>(Type type) where T : Attribute
+        {
+            return type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(m => m.GetCustomAttribute<T>() != null
+                    && m.GetParameters().Length==1 
+                    && m.GetParameters()[0].ParameterType == typeof(Dictionary<string,string>))
+                    .ToList();
+        }
 
         /// <summary>
         /// Serializes an object to a file.
@@ -55,6 +70,9 @@ namespace Toolbox.Xml.Serialization
             document.Save(stream, saveOptions);
         }
 
+        private const string DataName = "Data";
+        private const string KeyName = "Key";
+        private const string ValueName = "Value";
         private const string ItemName = "Item";
         private const string ItemsName = "Items";
         private const string TypeName = "type";
@@ -63,12 +81,15 @@ namespace Toolbox.Xml.Serialization
         private readonly XNamespace SystemNamespace = "https://github.com/Calteo/Toolbox.Xml.Serialization";
 
         private Dictionary<Type, string> ExtendedTypes { get; } = new Dictionary<Type, string>();
+        private bool NeedSystemNamespace { get; set; }
+
         private XAttribute GetExtendedTypeAttribute(Type type)
         {
             if (!ExtendedTypes.TryGetValue(type, out string name))
             {
                 name = $"t{ExtendedTypes.Count + 1}";
                 ExtendedTypes[type] = name;
+                NeedSystemNamespace = true;
             }
             return new XAttribute(SystemNamespace + TypeName, name);
         }
@@ -85,9 +106,12 @@ namespace Toolbox.Xml.Serialization
             var document = new XDocument();
 
             var root = SerializeObject(type.Name, obj, type);
-            if (ExtendedTypes.Count > 0)
+            if (NeedSystemNamespace)
             {
                 root.Add(new XAttribute(XNamespace.Xmlns + SystemNamespacePrefix, SystemNamespace));
+            }
+            if (ExtendedTypes.Count > 0)
+            {                
                 foreach (var kvp in ExtendedTypes.OrderBy(kvp => kvp.Value))
                 {
                     root.Add(new XAttribute(SystemNamespace + kvp.Value, kvp.Key.AssemblyQualifiedName));
@@ -105,6 +129,14 @@ namespace Toolbox.Xml.Serialization
             if (type.GetConstructor(Type.EmptyTypes) == null)
                 return null;
 
+            if (!SerializingMethods.TryGetValue(type, out var serializingMethods))
+            {
+                SerializingMethods[type] = serializingMethods = GetHandlers<OnSerializingAttribute>(type);
+            }
+
+            var additionalData = new Dictionary<string, string>();
+            serializingMethods.ForEach(p => p.Invoke(obj, new object[] { additionalData }));
+
             if (type.IsGenericType)
                 name = name.Replace('`', '-');
 
@@ -112,6 +144,19 @@ namespace Toolbox.Xml.Serialization
             if (expectedType != type)
             {
                 element.Add(GetExtendedTypeAttribute(type));
+            }
+
+            if (additionalData.Count > 0)
+            {
+                NeedSystemNamespace = true;
+                var dataElement = new XElement(SystemNamespace + DataName);
+                foreach (var kvp in additionalData)
+                {
+                    dataElement.Add(new XElement(ItemName, new XAttribute(KeyName, kvp.Key), new XAttribute(ValueName, kvp.Value)));
+                }
+
+                element.Add(dataElement);
+
             }
 
             var properties = GetProperties(type);
@@ -122,6 +167,13 @@ namespace Toolbox.Xml.Serialization
                 if (propertyElement != null)
                     element.Add(propertyElement);
             }
+
+            if (!SerializedMethods.TryGetValue(type, out var serializedMethods))
+            {
+                SerializedMethods[type] = serializedMethods = GetHandlers<OnSerializedAttribute>(type);
+            }
+
+            serializedMethods.ForEach(p => p.Invoke(obj, new object[] { additionalData }));
 
             return element;
         }
@@ -331,12 +383,38 @@ namespace Toolbox.Xml.Serialization
         private object DeserializeObject(XElement element, Type type)
         {
             var obj = Activator.CreateInstance(type);
+
+            if (!DeserializingMethods.TryGetValue(type, out var deserializingMethods))
+            {
+                DeserializingMethods[type] = deserializingMethods = GetHandlers<OnDeserializingAttribute>(type);
+            }
+
+            var additionalData = new Dictionary<string, string>();
+
+            var dataElement = element.Element(SystemNamespace + DataName);
+            if (dataElement != null)
+            {
+                foreach (var item in dataElement.Elements())
+                {
+                    additionalData.Add(item.Attribute(KeyName).Value, item.Attribute(ValueName).Value);
+                }
+            }
+                        
+            deserializingMethods.ForEach(p => p.Invoke(obj, new object[] { additionalData }));
+
             var properties = GetProperties(type);
 
             foreach (var property in properties)
             {
                 DeserializeProperty(element, obj, property);
             }
+
+            if (!DeserializedMethods.TryGetValue(type, out var deserializedMethods))
+            {
+                DeserializedMethods[type] = deserializedMethods = GetHandlers<OnDeserializedAttribute>(type);
+            }
+
+            deserializedMethods.ForEach(p => p.Invoke(obj, new object[] { additionalData }));
 
             return obj;
         }
@@ -345,7 +423,7 @@ namespace Toolbox.Xml.Serialization
         {
             if (!property.CanWrite) return;
 
-            var propertyElement = element.Elements().FirstOrDefault(e => e.Name.LocalName == property.Name);
+            var propertyElement = element.Elements().FirstOrDefault(e => e.Name.NamespaceName=="" && e.Name.LocalName==property.Name);
             if (propertyElement == null) return;
 
             object value = DeserializeValue(propertyElement, property.PropertyType);
