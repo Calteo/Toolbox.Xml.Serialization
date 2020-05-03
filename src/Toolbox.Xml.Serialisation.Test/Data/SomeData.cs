@@ -25,6 +25,9 @@ namespace Toolbox.Xml.Serialisation.Test.Data
         public int Value { get; private set; }
         public bool YesNo { get; set; }
 
+        public DateTime Time { get; set; }
+        public TimeSpan Span { get; set; }
+
         [NotSerialized]
         public string NotGood { get; set; }
 

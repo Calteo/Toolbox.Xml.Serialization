@@ -200,6 +200,14 @@ namespace Toolbox.Xml.Serialization
             {
                 return SerializeString(name, (string)value);
             }
+            if (type == typeof(DateTime))
+            {
+                return SerializeDateTime(name, (DateTime)value);
+            }
+            if (type == typeof(TimeSpan))
+            {
+                return SerializeTimeSpan(name, (TimeSpan)value);
+            }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
             {
                 var element = new XElement(name);
@@ -333,6 +341,25 @@ namespace Toolbox.Xml.Serialization
             return element;
         }
 
+        private XElement SerializeDateTime(string name, DateTime value)
+        {
+            var element = new XElement(name);
+
+            if (value != null)
+                element.Add(new XText(value.ToString("O")));
+
+            return element;
+        }
+        private XElement SerializeTimeSpan(string name, TimeSpan value)
+        {
+            var element = new XElement(name);
+
+            if (value != null)
+                element.Add(new XText(value.ToString("c")));
+
+            return element;
+        }
+
         private XElement SerializeValueType(string name, object value)
         {
             var element = new XElement(name);
@@ -448,6 +475,12 @@ namespace Toolbox.Xml.Serialization
             if (type == typeof(string))
                 return DeserializeString(element);
 
+            if (type == typeof(DateTime))
+                return DeserializeDateTime(element);
+
+            if (type == typeof(TimeSpan))
+                return DeserializeTimeSpan(element);
+
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
                 return DeserializeKeyValuePair(element, type);
 
@@ -559,6 +592,16 @@ namespace Toolbox.Xml.Serialization
         private string DeserializeString(XElement element)
         {
             return (element.FirstNode as XText)?.Value;
+        }
+
+        private DateTime DeserializeDateTime(XElement element)
+        {
+            return DateTime.ParseExact((element.FirstNode as XText)?.Value, "O", null);
+        }
+
+        private TimeSpan DeserializeTimeSpan(XElement element)
+        {
+            return TimeSpan.ParseExact((element.FirstNode as XText)?.Value, "c", null);
         }
 
         private object DeserializeValueType(XElement element, Type type)

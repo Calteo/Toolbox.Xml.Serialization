@@ -31,7 +31,7 @@ namespace Toolbox.Xml.Serialisation.Test
         }
 
         [TestMethod]
-        public void MemroyTest()
+        public void MemoryTest()
         {
             var cut = new XmlFormatter<Container<string>>();
 

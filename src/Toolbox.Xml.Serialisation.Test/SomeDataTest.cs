@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Toolbox.Xml.Serialisation.Test.Data;
 using Toolbox.Xml.Serialization;
 
@@ -22,6 +23,8 @@ namespace Toolbox.Xml.Serialisation.Test
             {
                 Name = null,
                 Number = 0.42M + GetHashCode(),
+                Time = DateTime.Now,
+                Span = TimeSpan.FromMilliseconds(457575578),
                 DataAfterObject = $"Some text after object at {GetHashCode()}",                
                 SubData = new SubData
                 {
@@ -41,6 +44,8 @@ namespace Toolbox.Xml.Serialisation.Test
 
             Assert.AreEqual(data.Name, read.Name);
             Assert.AreEqual(data.Number, read.Number);
+            Assert.AreEqual(data.Time, read.Time);
+            Assert.AreEqual(data.Span, read.Span);
             Assert.AreEqual(data.YesNo, read.YesNo);
             Assert.AreEqual(data.Value, read.Value);
             Assert.AreEqual(data.SubData.Info, read.SubData.Info);
