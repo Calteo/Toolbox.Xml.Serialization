@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>API Documentation </title>
+    <title>Handlers </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="API Documentation ">
+    <meta name="title" content="Handlers ">
     <meta name="generator" content="docfx 2.52.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
@@ -67,9 +67,94 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="api-documentation">API Documentation</h1>
+<h1 id="handlers">Handlers</h1>
 
-<p>This is the technical documentation of the component.</p>
+<p>With handlers you can adopt the process in various ways.</p>
+<h2 id="sample-object">Sample object</h2>
+<p>Have a look at this class.</p>
+<pre><code>class DataContainer
+{   
+  public string Name { get; set; }
+
+  [NotSerialized]
+  public int ZipCode { get; set; }  
+
+  
+}
+</code></pre>
+<p>Here the property <code>Name</code> gets serialized and <code>ZipCode</code> not. Maybe, because we want to apply some special encoding on it.</p>
+<h2 id="implementation">Implementation</h2>
+<p>You can implement handlers at four points in the process.</p>
+<ul>
+<li>Just before serialization of an object.</li>
+<li>Just after serialization of an object.</li>
+<li>Just before deserialization of an object.</li>
+<li>Just after deserialization of an object.</li>
+</ul>
+<p>They are implemented as methods in your object with a signature</p>
+<pre><code>void MethodNameOfYourChoice(Dictionary&lt;string, string&gt; data)
+</code></pre>
+<p>Every method must be decorated with an attribute (from the usual serialisation, so there documentation does not apply here).
+The passed data will be also serialized with the object. But it only makes sense to polulate it in the
+before the serilization take place.</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Attribute</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>before serialization</td>
+<td>OnSerializingAttribute</td>
+</tr>
+<tr>
+<td>after serialization</td>
+<td>OnSerializedAttribute</td>
+</tr>
+<tr>
+<td>before deserialization</td>
+<td>OnDeserializingAttribute</td>
+</tr>
+<tr>
+<td>after deserialization</td>
+<td>OnDeserializedAttribute</td>
+</tr>
+</tbody>
+</table>
+<p>So the example code might look like this</p>
+<pre><code>    [OnSerializing]
+    private void OnSerializing(Dictionary&lt;string, string&gt; data)
+    {
+        // Not so sophisticated encoding...
+        data[&quot;EncodedZip&quot;] = ZipCode.ToString();
+    }
+
+    [OnSerialized]
+    private void OnSerialized(Dictionary&lt;string, string&gt; data)
+    {
+        // Nothing to do here, so this one could be obmitted
+        // The data is already written, so changing it here will do nothing.
+    }
+
+    [OnDeserializing]
+    private void OnDeserializing(Dictionary&lt;string, string&gt; data)
+    {
+        // Nothing to do here, so this one could be obmitted
+        // The data is already read, so changes will get to the last handler.
+        // The object is already constructed, but the properties have not been set.
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(Dictionary&lt;string, string&gt; data)
+    {
+        // The object is already constructed and the properties have been set.
+
+        // reverse the encoding...
+        ZipCode = int.Parse(data[&quot;EncodedZip&quot;]);
+    }
+</code></pre>
 </article>
           </div>
           
@@ -78,7 +163,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/Calteo/Toolbox.Xml.Serialization/blob/master/docfx_project/api/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/Calteo/Toolbox.Xml.Serialization/blob/master/docfx_project/articles/handlers.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
