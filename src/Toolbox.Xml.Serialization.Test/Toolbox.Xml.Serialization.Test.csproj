@@ -2,8 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <Authors>Calteo</Authors>
-    <Product>Toolbox.CommandLine</Product>
-    <Description>Tests for the Toolbox.CommandLine</Description>
+    <Product>Toolbox.Xml.Serialization</Product>
+    <Description>Tests for the Toolbox.Xml.Serialization</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright 2020 by Calteo</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />

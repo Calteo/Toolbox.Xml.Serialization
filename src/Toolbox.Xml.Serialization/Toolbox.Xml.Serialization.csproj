@@ -9,17 +9,10 @@
     <Copyright>Copyright 2020 by Calteo</Copyright>
     <Authors>Calteo</Authors>
     <Company>Calteo</Company>
-    <PackageIcon>app.ico</PackageIcon>
+    <PackageIcon></PackageIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\app.ico">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Properties\" />
