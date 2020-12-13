@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -262,10 +263,11 @@ namespace Toolbox.Xml.Serialization
         private void SerializeICollection(Type interfaceType, object value, XElement element)
         {
             var expectedItemType = interfaceType.GetGenericArguments()[0];
-            dynamic collection = value;
+            
             var collectionElement = new XElement(ItemsName);
             element.Add(collectionElement);
-            foreach (var item in collection)
+
+            foreach (var item in (IEnumerable)value)
             {
                 var itemElement = SerializeValue(ItemName, (object)item, expectedItemType);
                 if (itemElement != null)

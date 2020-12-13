@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.960
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toolbox.Xml.Serialization", "Toolbox.Xml.Serialization\Toolbox.Xml.Serialization.csproj", "{DDE8DAC5-0253-472C-8439-5612AEB5FBA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toolbox.Xml.Serialization", "Toolbox.Xml.Serialization\Toolbox.Xml.Serialization.csproj", "{DDE8DAC5-0253-472C-8439-5612AEB5FBA9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toolbox.Xml.Serialisation.Test", "Toolbox.Xml.Serialisation.Test\Toolbox.Xml.Serialisation.Test.csproj", "{B40AAF00-329A-4C7C-82AB-3A9E0446C2F4}"
 EndProject
