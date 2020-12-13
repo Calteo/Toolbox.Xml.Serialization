@@ -13,18 +13,24 @@ references:
   commentId: T:Toolbox.Xml.Serialization.NotSerializedAttribute
   fullName: Toolbox.Xml.Serialization.NotSerializedAttribute
   nameWithType: NotSerializedAttribute
+- uid: Toolbox.Xml.Serialization.ObfuscateAttribute
+  name: ObfuscateAttribute
+  href: api/Toolbox.Xml.Serialization.ObfuscateAttribute.html
+  commentId: T:Toolbox.Xml.Serialization.ObfuscateAttribute
+  fullName: Toolbox.Xml.Serialization.ObfuscateAttribute
+  nameWithType: ObfuscateAttribute
 - uid: Toolbox.Xml.Serialization.XmlFormatter
   name: XmlFormatter
   href: api/Toolbox.Xml.Serialization.XmlFormatter.html
   commentId: T:Toolbox.Xml.Serialization.XmlFormatter
   fullName: Toolbox.Xml.Serialization.XmlFormatter
   nameWithType: XmlFormatter
-- uid: Toolbox.Xml.Serialization.XmlFormatter.#ctor(System.Type)
-  name: XmlFormatter(Type)
-  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter__ctor_System_Type_
-  commentId: M:Toolbox.Xml.Serialization.XmlFormatter.#ctor(System.Type)
-  fullName: Toolbox.Xml.Serialization.XmlFormatter.XmlFormatter(System.Type)
-  nameWithType: XmlFormatter.XmlFormatter(Type)
+- uid: Toolbox.Xml.Serialization.XmlFormatter.#ctor(System.Type,System.String)
+  name: XmlFormatter(Type, String)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter__ctor_System_Type_System_String_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter.#ctor(System.Type,System.String)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter.XmlFormatter(System.Type, System.String)
+  nameWithType: XmlFormatter.XmlFormatter(Type, String)
 - uid: Toolbox.Xml.Serialization.XmlFormatter.#ctor*
   name: XmlFormatter
   href: api/Toolbox.Xml.Serialization.XmlFormatter.html#Toolbox_Xml_Serialization_XmlFormatter__ctor_
@@ -79,14 +85,14 @@ references:
   fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T)
   nameWithType: XmlFormatter<T>
   nameWithType.vb: XmlFormatter(Of T)
-- uid: Toolbox.Xml.Serialization.XmlFormatter`1.#ctor
-  name: XmlFormatter()
-  href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1__ctor
-  commentId: M:Toolbox.Xml.Serialization.XmlFormatter`1.#ctor
-  fullName: Toolbox.Xml.Serialization.XmlFormatter<T>.XmlFormatter()
-  fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T).XmlFormatter()
-  nameWithType: XmlFormatter<T>.XmlFormatter()
-  nameWithType.vb: XmlFormatter(Of T).XmlFormatter()
+- uid: Toolbox.Xml.Serialization.XmlFormatter`1.#ctor(System.String)
+  name: XmlFormatter(String)
+  href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1__ctor_System_String_
+  commentId: M:Toolbox.Xml.Serialization.XmlFormatter`1.#ctor(System.String)
+  fullName: Toolbox.Xml.Serialization.XmlFormatter<T>.XmlFormatter(System.String)
+  fullName.vb: Toolbox.Xml.Serialization.XmlFormatter(Of T).XmlFormatter(System.String)
+  nameWithType: XmlFormatter<T>.XmlFormatter(String)
+  nameWithType.vb: XmlFormatter(Of T).XmlFormatter(String)
 - uid: Toolbox.Xml.Serialization.XmlFormatter`1.#ctor*
   name: XmlFormatter
   href: api/Toolbox.Xml.Serialization.XmlFormatter-1.html#Toolbox_Xml_Serialization_XmlFormatter_1__ctor_

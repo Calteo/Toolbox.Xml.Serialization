@@ -17,11 +17,23 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Toolbox.Xml.Serialization.ObfuscateAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Toolbox.Xml.Serialization.ObfuscateAttribute.html",
+          "hash": "P+jhY6d/Gg6B4VHA/qiF9w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Toolbox.Xml.Serialization.XmlFormatter-1.yml",
       "output": {
         ".html": {
           "relative_path": "api/Toolbox.Xml.Serialization.XmlFormatter-1.html",
-          "hash": "UgCO7SjtNfbWB4GEcEw6RA=="
+          "hash": "fNDmvBmzpwIvP0iUTfc/6Q=="
         }
       },
       "is_incremental": false,
@@ -33,7 +45,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Toolbox.Xml.Serialization.XmlFormatter.html",
-          "hash": "EonvhrOiT7MQNPEQzmwKow=="
+          "hash": "Ni62sUQhMscyd3WA282FVA=="
         }
       },
       "is_incremental": false,
@@ -45,7 +57,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Toolbox.Xml.Serialization.html",
-          "hash": "2TDL2xE7Je5wbVpkzW6bUg=="
+          "hash": "HLCaBf9AKs2Yxh60pQkaBg=="
         }
       },
       "is_incremental": false,
@@ -69,7 +81,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "5hpWOs18Nh6wM2H09+2ESg=="
+          "hash": "TA8EZU1NqlI7rLbtZtnu0Q=="
         }
       },
       "is_incremental": false,
@@ -192,7 +204,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 4,
+          "total_file_count": 5,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
