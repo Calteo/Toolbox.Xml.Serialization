@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<SomeData xmlns:sys="https://github.com/Calteo/Toolbox.Xml.Serialization" sys:t1="Toolbox.Xml.Serialisation.Test.Data.DerivedSubData, Toolbox.Xml.Serialisation.Test, Version=0.5.0.0, Culture=neutral, PublicKeyToken=null">
+<SomeData xmlns:sys="https://github.com/Calteo/Toolbox.Xml.Serialization" sys:t1="Toolbox.Xml.Serialization.Test.Data.DerivedSubData, Toolbox.Xml.Serialization.Test, Version=0.5.0.0, Culture=neutral, PublicKeyToken=null">
   <Name />
   <Value>64019460</Value>
   <YesNo>True</YesNo>

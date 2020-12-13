@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Toolbox.Xml.Serialisation.Test.Data;
 using Toolbox.Xml.Serialization;
+using Toolbox.Xml.Serialization.Test.Data;
 
-namespace Toolbox.Xml.Serialisation.Test
+namespace Toolbox.Xml.Serialization.Test
 {
     [TestClass]
     public class GenericsTest

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Toolbox.Xml.Serialization;
 
-namespace Toolbox.Xml.Serialisation.Test.Data
+namespace Toolbox.Xml.Serialization.Test.Data
 {
     class SomeData
     {

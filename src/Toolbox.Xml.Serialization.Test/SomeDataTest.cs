@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Toolbox.Xml.Serialisation.Test.Data;
 using Toolbox.Xml.Serialization;
+using Toolbox.Xml.Serialization.Test.Data;
 
-namespace Toolbox.Xml.Serialisation.Test
+namespace Toolbox.Xml.Serialization.Test
 {
     [TestClass]
     public class SomeDataTest

@@ -1,4 +1,4 @@
-﻿namespace Toolbox.Xml.Serialisation.Test.Data
+﻿namespace Toolbox.Xml.Serialization.Test.Data
 {
     class SubData
     {

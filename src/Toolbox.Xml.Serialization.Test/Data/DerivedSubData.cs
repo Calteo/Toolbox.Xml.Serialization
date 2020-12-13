@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Toolbox.Xml.Serialisation.Test.Data
+namespace Toolbox.Xml.Serialization.Test.Data
 {
     class DerivedSubData : SubData
     {        
