@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
+using System.Security;
 using Toolbox.Xml.Serialization;
 using Toolbox.Xml.Serialization.Test.Data;
 
@@ -210,6 +212,61 @@ namespace Toolbox.Xml.Serialization.Test
             Assert.IsInstanceOfType(read.SubData, typeof(DerivedSubData));
             var readSubData = (DerivedSubData)read.SubData;
             Assert.AreEqual(readSubData.MoreInfo, "MoreInfo at 64019460");
+        }
+
+        [TestMethod]
+        public void WriteAndReadSafeData()
+        {
+            var cut = new XmlFormatter<SafeData>();
+
+            const string Secret = "S*ecret";
+
+            var data = new SafeData
+            {
+                Password = Secret
+            };
+
+            var stream = new MemoryStream();
+
+            cut.Serialize(data, stream);
+
+            stream.Position = 0;
+
+            var read = cut.Deserialize(stream);
+
+            stream.Position = 0;
+            using (var reader = new StreamReader(stream))
+            {
+                var text = reader.ReadToEnd();
+                Assert.IsTrue(!text.Contains(Secret), "serialization contains secret");
+            }
+
+            Assert.AreEqual(data.Password, read.Password);
+        }
+
+        [TestMethod]
+        public void WriteAndReadSafeDataDifferentFormatters()
+        {
+            const string EncryptionKey = "SuperSecretKey";
+
+            var cut = new XmlFormatter<SafeData>(EncryptionKey);
+
+            const string Secret = "S*ecret";
+
+            var data = new SafeData
+            {
+                Password = Secret
+            };
+
+            var stream = new MemoryStream();
+
+            new XmlFormatter<SafeData>(EncryptionKey).Serialize(data, stream);
+
+            stream.Position = 0;
+
+            var read = cut.Deserialize(stream);
+
+            Assert.AreEqual(data.Password, read.Password);
         }
     }
 }

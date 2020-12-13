@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Security.Cryptography;
+using System.Text;
 using System.Xml.Linq;
 
 namespace Toolbox.Xml.Serialization
@@ -19,7 +21,7 @@ namespace Toolbox.Xml.Serialization
         /// Initializes a new instance of <see cref="XmlFormatter"/> instance.
         /// </summary>
         /// <param name="type">The root type. It must implement a default constructor.</param>
-        public XmlFormatter(Type type)
+        public XmlFormatter(Type type, string encryptionKey = "")
         {
             if (!type.IsClass)
                 throw new ArgumentException("only classes can be serialized", nameof(type));
@@ -27,7 +29,22 @@ namespace Toolbox.Xml.Serialization
                 throw new ArgumentException("only classes with default constructor can be serialized", nameof(type));
 
             RootType = type;
+
+            Algorithm = new AesCryptoServiceProvider();
+            using (var hashAlgorithm = SHA256.Create())
+            {
+                var hash = hashAlgorithm.ComputeHash(Encoding.Default.GetBytes(HashPrefix + encryptionKey + HashPostfix));
+                Algorithm.Key = hash;
+
+                hash = hashAlgorithm.ComputeHash(Encoding.Default.GetBytes(HashPostfix + encryptionKey + HashPrefix));
+                Algorithm.IV = hash.Take(Algorithm.IV.Length).ToArray();
+            }
         }
+
+        private const string HashPrefix = "@Obfuscate#";
+        private const string HashPostfix = "#Obfuscate@";
+
+        private SymmetricAlgorithm Algorithm { get; set; }
 
         private Type RootType { get; }
 
@@ -68,7 +85,7 @@ namespace Toolbox.Xml.Serialization
         public void Serialize(object obj, Stream stream, SaveOptions saveOptions = SaveOptions.OmitDuplicateNamespaces)
         {
             var document = Serialize(obj);
-            document.Save(stream, saveOptions);
+            document.Save(stream, saveOptions);            
         }
 
         private const string DataName = "Data";
@@ -77,6 +94,7 @@ namespace Toolbox.Xml.Serialization
         private const string ItemName = "Item";
         private const string ItemsName = "Items";
         private const string TypeName = "type";
+        private const string ObfuscatedName = "Obfuscated";
         private const string SystemNamespacePrefix = "sys";
 
         private readonly XNamespace SystemNamespace = "https://github.com/Calteo/Toolbox.Xml.Serialization";
@@ -157,7 +175,6 @@ namespace Toolbox.Xml.Serialization
                 }
 
                 element.Add(dataElement);
-
             }
 
             var properties = GetProperties(type);
@@ -183,7 +200,20 @@ namespace Toolbox.Xml.Serialization
         {
             if (!property.CanRead || !property.CanWrite || property.GetIndexParameters().Length != 0) return null;
 
-            return SerializeValue(property.Name, property.GetValue(obj), property.PropertyType);
+            var element = SerializeValue(property.Name, property.GetValue(obj), property.PropertyType);
+            if (property.GetCustomAttribute<ObfuscateAttribute>() != null)
+            {
+                var obfuscated = new XElement(SystemNamespace + ObfuscatedName);
+                using (var encryptor = Algorithm.CreateEncryptor())
+                {
+                    var buffer = Encoding.Default.GetBytes(element.ToString());
+                    var bytes = encryptor.TransformFinalBlock(buffer, 0, buffer.Length);
+                    obfuscated.Add(new XText(Convert.ToBase64String(bytes)));
+                }
+                return obfuscated;
+            }
+
+            return element;
         }
 
         private XElement SerializeValue(string name, object value, Type expectedType)
@@ -430,6 +460,20 @@ namespace Toolbox.Xml.Serialization
             }
                         
             deserializingMethods.ForEach(p => p.Invoke(obj, new object[] { additionalData }));
+
+            foreach (var obfuscated in element.Elements(SystemNamespace + ObfuscatedName))
+            {
+                using (var decryptor = Algorithm.CreateDecryptor())
+                {
+                    var text = obfuscated.Value;
+                    var bytes = Convert.FromBase64String(text);
+                    var buffer = decryptor.TransformFinalBlock(bytes, 0, bytes.Length);
+                    var xml = Encoding.Default.GetString(buffer);
+                    var deObfuscated = XElement.Parse(xml);
+                    element.Add(deObfuscated);
+                    obfuscated.Remove();
+                }
+            }
 
             var properties = GetProperties(type);
 

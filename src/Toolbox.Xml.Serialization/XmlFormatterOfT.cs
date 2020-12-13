@@ -11,7 +11,8 @@ namespace Toolbox.Xml.Serialization
         /// <summary>
         /// Initializes a new instance of <see cref="XmlFormatter{T}"/>.
         /// </summary>
-        public XmlFormatter() : base(typeof(T))
+        /// <param name="encryptionKey">Optional encryption key (<see cref="ObfuscateAttribute"/>)</param>
+        public XmlFormatter(string encryptionKey = "") : base(typeof(T), encryptionKey)
         {
         }
 
