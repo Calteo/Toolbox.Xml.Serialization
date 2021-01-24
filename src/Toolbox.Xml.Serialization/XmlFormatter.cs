@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -196,11 +197,10 @@ namespace Toolbox.Xml.Serialization
             return element;
         }
 
+
         private XElement Serialize(object obj, PropertyInfo property)
         {
-            if (!property.CanRead || !property.CanWrite || property.GetIndexParameters().Length != 0) return null;
-
-            var element = SerializeValue(property.Name, property.GetValue(obj), property.PropertyType);
+            var element = SerializeValue(property.Name, property.GetValue(obj), property.PropertyType, GetConverter(property));
             if (property.GetCustomAttribute<ObfuscateAttribute>() != null)
             {
                 var obfuscated = new XElement(SystemNamespace + ObfuscatedName);
@@ -216,7 +216,7 @@ namespace Toolbox.Xml.Serialization
             return element;
         }
 
-        private XElement SerializeValue(string name, object value, Type expectedType)
+        private XElement SerializeValue(string name, object value, Type expectedType, TypeConverter converter = null)
         {
             var type = value?.GetType();
 
@@ -230,7 +230,7 @@ namespace Toolbox.Xml.Serialization
             else if (type == typeof(string))
             {
                 return SerializeString(name, (string)value);
-            }
+            }            
             if (type == typeof(DateTime))
             {
                 return SerializeDateTime(name, (DateTime)value);
@@ -257,7 +257,7 @@ namespace Toolbox.Xml.Serialization
             }
             else if (type.IsValueType)
             {
-                return SerializeValueType(name, value);
+                return SerializeValueType(name, value, converter);
             }
             else
             {
@@ -344,8 +344,9 @@ namespace Toolbox.Xml.Serialization
             while (dimension >= 0)
             {
                 var elementValue = value.GetValue(index);
+                var elementType = expectedType.GetElementType();
 
-                var itemElement = SerializeValue(ItemName, elementValue, expectedType.GetElementType());
+                var itemElement = SerializeValue(ItemName, elementValue, elementType, TypeDescriptor.GetConverter(elementType));
                 if (itemElement != null)
                 {
                     element.Add(itemElement);
@@ -392,13 +393,13 @@ namespace Toolbox.Xml.Serialization
             return element;
         }
 
-        private XElement SerializeValueType(string name, object value)
+        private XElement SerializeValueType(string name, object value, TypeConverter converter)
         {
             var element = new XElement(name);
 
             if (value != null)
             {
-                element.Add(new XText(Convert.ToString(value, CultureInfo.InvariantCulture)));
+                element.Add(new XText(converter.ConvertToInvariantString(value)));
             }
 
             return element;
@@ -499,12 +500,12 @@ namespace Toolbox.Xml.Serialization
             var propertyElement = element.Elements().FirstOrDefault(e => e.Name.NamespaceName=="" && e.Name.LocalName==property.Name);
             if (propertyElement == null) return;
 
-            object value = DeserializeValue(propertyElement, property.PropertyType);
+            object value = DeserializeValue(propertyElement, property.PropertyType, GetConverter(property));
 
             property.SetValue(obj, value);
         }
 
-        private object DeserializeValue(XElement element, Type type)
+        private object DeserializeValue(XElement element, Type type, TypeConverter converter = null)
         {
             if (element.IsEmpty)
                 return null;
@@ -531,7 +532,7 @@ namespace Toolbox.Xml.Serialization
                 return DeserializeKeyValuePair(element, type);
 
             if (type.IsValueType)
-                return DeserializeValueType(element, type);
+                return DeserializeValueType(element, converter);
 
             var obj = DeserializeObject(element, type);
             if (obj != null)
@@ -620,7 +621,7 @@ namespace Toolbox.Xml.Serialization
 
             while (dimension >= 0)
             {
-                var value = DeserializeValue(items[i], elementType);
+                var value = DeserializeValue(items[i], elementType, TypeDescriptor.GetConverter(elementType));
                 obj.SetValue(value, index);
                 i++;
 
@@ -650,16 +651,47 @@ namespace Toolbox.Xml.Serialization
             return TimeSpan.ParseExact((element.FirstNode as XText)?.Value, "c", null);
         }
 
-        private object DeserializeValueType(XElement element, Type type)
+        private object DeserializeValueType(XElement element, TypeConverter converter)
         {
             var text = (element.FirstNode as XText)?.Value;
-            return Convert.ChangeType(text, type, CultureInfo.InvariantCulture);
+            return converter.ConvertFromInvariantString(text);
         }
 
         private IEnumerable<PropertyInfo> GetProperties(Type type)
         {
-            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                .Where(p => p.CanRead && p.CanWrite && p.GetCustomAttribute<NotSerializedAttribute>() == null);
+            return type
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(AcceptProperty);
+        }
+
+        private bool AcceptProperty(PropertyInfo property)
+        {
+            if (!property.CanRead
+                || !property.CanWrite
+                || property.GetCustomAttribute<NotSerializedAttribute>() != null
+                || property.GetIndexParameters().Length > 0)
+            {
+                return false;
+            }
+            if (property.PropertyType.IsValueType)
+            {
+                if (GetConverter(property) == null) return false;
+            }
+
+            return true;
+        }
+
+        private TypeConverter GetConverter(PropertyInfo property)
+        {
+            var converter = TypeDescriptor.GetConverter(property);
+            if (converter != null && converter.CanConvertTo(typeof(string)) && converter.CanConvertFrom(typeof(string)))
+                return converter;
+
+            converter = TypeDescriptor.GetConverter(property.PropertyType);
+            if (converter != null && converter.CanConvertTo(typeof(string)) && converter.CanConvertFrom(typeof(string)))
+                return converter;
+
+            return null;
         }
     }
 }

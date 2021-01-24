@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Security;
 using Toolbox.Xml.Serialization;
@@ -38,7 +39,8 @@ namespace Toolbox.Xml.Serialization.Test
                 {
                     { "Test1", new SubData { Info = $"Test1 dictionary at {GetHashCode()}" } },
                     { "Test2", new SubData { Info = $"Test2 dictionary at {GetHashCode()}" } }
-                }
+                },
+                Location = new Point(5,6)
             };
 
             cut.Serialize(data, Filename);
@@ -50,6 +52,7 @@ namespace Toolbox.Xml.Serialization.Test
             Assert.AreEqual(data.Span, read.Span);
             Assert.AreEqual(data.YesNo, read.YesNo);
             Assert.AreEqual(data.Value, read.Value);
+            Assert.AreEqual(data.Location, read.Location);
             Assert.AreEqual(data.SubData.Info, read.SubData.Info);
             Assert.AreEqual(data.DataAfterObject, read.DataAfterObject);
             Assert.AreNotEqual(data.NotGood, read.NotGood);

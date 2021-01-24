@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,5 +41,7 @@ namespace Toolbox.Xml.Serialization.Test.Data
         public List<string> Products { get; set; }
 
         public Dictionary<string, SubData> SubDatas { get; set; }
+
+        public Point Location { get; set; }
     }
 }
