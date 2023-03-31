@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -31,15 +30,15 @@ namespace Toolbox.Xml.Serialization
 
             RootType = type;
 
-            Algorithm = new AesCryptoServiceProvider();
-            using (var hashAlgorithm = SHA256.Create())
-            {
-                var hash = hashAlgorithm.ComputeHash(Encoding.Default.GetBytes(HashPrefix + encryptionKey + HashPostfix));
-                Algorithm.Key = hash;
+            Algorithm = Aes.Create();
 
-                hash = hashAlgorithm.ComputeHash(Encoding.Default.GetBytes(HashPostfix + encryptionKey + HashPrefix));
-                Algorithm.IV = hash.Take(Algorithm.IV.Length).ToArray();
-            }
+            using var hashAlgorithm = SHA256.Create();
+
+            var hash = hashAlgorithm.ComputeHash(Encoding.Default.GetBytes(HashPrefix + encryptionKey + HashPostfix));
+            Algorithm.Key = hash;
+
+            hash = hashAlgorithm.ComputeHash(Encoding.Default.GetBytes(HashPostfix + encryptionKey + HashPrefix));
+            Algorithm.IV = hash.Take(Algorithm.IV.Length).ToArray();
         }
 
         private const string HashPrefix = "@Obfuscate#";
@@ -54,7 +53,7 @@ namespace Toolbox.Xml.Serialization
         private Dictionary<Type, List<MethodInfo>> DeserializingMethods { get; } = new Dictionary<Type, List<MethodInfo>>();
         private Dictionary<Type, List<MethodInfo>> DeserializedMethods { get; } = new Dictionary<Type, List<MethodInfo>>();
 
-        private List<MethodInfo> GetHandlers<T>(Type type) where T : Attribute
+        private static List<MethodInfo> GetHandlers<T>(Type type) where T : Attribute
         {
             return type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                     .Where(m => m.GetCustomAttribute<T>() != null
@@ -71,10 +70,9 @@ namespace Toolbox.Xml.Serialization
         /// <param name="saveOptions">options for saving</param>
         public void Serialize(object obj, string fileName, SaveOptions saveOptions = SaveOptions.OmitDuplicateNamespaces)
         {
-            using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                Serialize(obj, stream, saveOptions);
-            }
+            using var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
+
+            Serialize(obj, stream, saveOptions);
         }
 
         /// <summary>
@@ -364,7 +362,7 @@ namespace Toolbox.Xml.Serialization
             return element;
         }
 
-        private XElement SerializeString(string name, string value)
+        private static XElement SerializeString(string name, string value)
         {
             var element = new XElement(name);
 
@@ -374,26 +372,26 @@ namespace Toolbox.Xml.Serialization
             return element;
         }
 
-        private XElement SerializeDateTime(string name, DateTime value)
+        private static XElement SerializeDateTime(string name, DateTime? value)
         {
             var element = new XElement(name);
 
             if (value != null)
-                element.Add(new XText(value.ToString("O")));
+                element.Add(new XText(value.Value.ToString("O")));
 
             return element;
         }
-        private XElement SerializeTimeSpan(string name, TimeSpan value)
+        private static XElement SerializeTimeSpan(string name, TimeSpan? value)
         {
             var element = new XElement(name);
 
             if (value != null)
-                element.Add(new XText(value.ToString("c")));
+                element.Add(new XText(value.Value.ToString("c")));
 
             return element;
         }
 
-        private XElement SerializeValueType(string name, object value, TypeConverter converter)
+        private static XElement SerializeValueType(string name, object value, TypeConverter converter)
         {
             var element = new XElement(name);
 
@@ -414,10 +412,9 @@ namespace Toolbox.Xml.Serialization
         /// <returns>The deserialized object</returns>
         public object Deserialize(string fileName)
         {
-            using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                return Deserialize(stream);
-            }
+            using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            return Deserialize(stream);
         }
 
         /// <summary>
@@ -462,18 +459,17 @@ namespace Toolbox.Xml.Serialization
                         
             deserializingMethods.ForEach(p => p.Invoke(obj, new object[] { additionalData }));
 
-            foreach (var obfuscated in element.Elements(SystemNamespace + ObfuscatedName))
+            foreach (var obfuscated in element.Elements(SystemNamespace + ObfuscatedName).ToArray())
             {
-                using (var decryptor = Algorithm.CreateDecryptor())
-                {
-                    var text = obfuscated.Value;
-                    var bytes = Convert.FromBase64String(text);
-                    var buffer = decryptor.TransformFinalBlock(bytes, 0, bytes.Length);
-                    var xml = Encoding.Default.GetString(buffer);
-                    var deObfuscated = XElement.Parse(xml);
-                    element.Add(deObfuscated);
-                    obfuscated.Remove();
-                }
+                using var decryptor = Algorithm.CreateDecryptor();
+
+                var text = obfuscated.Value;
+                var bytes = Convert.FromBase64String(text);
+                var buffer = decryptor.TransformFinalBlock(bytes, 0, bytes.Length);
+                var xml = Encoding.Default.GetString(buffer);
+                var deObfuscated = XElement.Parse(xml);
+                element.Add(deObfuscated);
+                obfuscated.Remove();
             }
 
             var properties = GetProperties(type);
@@ -636,22 +632,22 @@ namespace Toolbox.Xml.Serialization
             return obj;
         }
 
-        private string DeserializeString(XElement element)
+        private static string DeserializeString(XElement element)
         {
             return (element.FirstNode as XText)?.Value;
         }
 
-        private DateTime DeserializeDateTime(XElement element)
+        private static DateTime DeserializeDateTime(XElement element)
         {
             return DateTime.ParseExact((element.FirstNode as XText)?.Value, "O", null);
         }
 
-        private TimeSpan DeserializeTimeSpan(XElement element)
+        private static TimeSpan DeserializeTimeSpan(XElement element)
         {
             return TimeSpan.ParseExact((element.FirstNode as XText)?.Value, "c", null);
         }
 
-        private object DeserializeValueType(XElement element, TypeConverter converter)
+        private static object DeserializeValueType(XElement element, TypeConverter converter)
         {
             var text = (element.FirstNode as XText)?.Value;
             return converter.ConvertFromInvariantString(text);
@@ -681,7 +677,7 @@ namespace Toolbox.Xml.Serialization
             return true;
         }
 
-        private TypeConverter GetConverter(PropertyInfo property)
+        private static TypeConverter GetConverter(PropertyInfo property)
         {
             var converter = TypeDescriptor.GetConverter(property);
             if (converter != null && converter.CanConvertTo(typeof(string)) && converter.CanConvertFrom(typeof(string)))
