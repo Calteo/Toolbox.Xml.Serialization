@@ -94,5 +94,23 @@ namespace Toolbox.Xml.Serialization.Test
             for (var i = 0; i < read.Names.Count; i++)
                 Assert.AreEqual(data.Names[i], read.Names[i], $"Names[{i}]");
         }
-    }
+
+		[TestMethod]
+		public void ListOfIntTest()
+		{
+			var cut = new XmlFormatter<CollectionData>();
+
+			var data = new CollectionData
+			{
+				Numbers = Enumerable.Range(0, 10).ToList()
+			};
+
+			cut.Serialize(data, Filename);
+			var read = cut.Deserialize(Filename);
+
+			Assert.AreEqual(data.Numbers.Count, read.Numbers.Count);
+			for (var i = 0; i < read.Numbers.Count; i++)
+				Assert.AreEqual(data.Numbers[i], read.Numbers[i], $"Numbers[{i}]");
+		}
+	}
 }

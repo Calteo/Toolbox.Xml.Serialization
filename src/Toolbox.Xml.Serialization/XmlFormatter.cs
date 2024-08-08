@@ -297,7 +297,7 @@ namespace Toolbox.Xml.Serialization
 
             foreach (var item in (IEnumerable)value)
             {
-                var itemElement = SerializeValue(ItemName, (object)item, expectedItemType);
+                var itemElement = SerializeValue(ItemName, item, expectedItemType, TypeDescriptor.GetConverter(expectedItemType));
                 if (itemElement != null)
                     collectionElement.Add(itemElement);
             }
@@ -559,7 +559,7 @@ namespace Toolbox.Xml.Serialization
             var collectionElement = element.Element(ItemsName);
             foreach (var itemElement in collectionElement.Elements(ItemName))
             {
-                var item = DeserializeValue(itemElement, expectedItemType);
+                var item = DeserializeValue(itemElement, expectedItemType, TypeDescriptor.GetConverter(expectedItemType));
                 interfaceType.GetMethod("Add").Invoke(obj, new[] { item });
             }
         }
