@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Toolbox.Xml.Serialization;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Toolbox.Xml.Serialization.Test.Data;
 
 namespace Toolbox.Xml.Serialization.Test

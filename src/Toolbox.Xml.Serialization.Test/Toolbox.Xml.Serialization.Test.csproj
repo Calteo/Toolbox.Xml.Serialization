@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Authors>Calteo</Authors>
     <Product>Toolbox.Xml.Serialization</Product>
     <Description>Tests for the Toolbox.Xml.Serialization</Description>

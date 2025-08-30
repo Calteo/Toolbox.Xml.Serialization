@@ -29,7 +29,7 @@ jobs:
     - name: Install .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
 
     - name: Install NuGet
       uses: NuGet/setup-nuget@v1.1.1

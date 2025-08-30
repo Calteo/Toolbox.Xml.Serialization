@@ -255,7 +255,7 @@ namespace Toolbox.Xml.Serialization
             }
             else if (type.IsValueType)
             {
-                return SerializeValueType(name, value, converter);
+                return SerializeValueType(name, value, converter ?? TypeDescriptor.GetConverter(type));
             }
             else
             {
@@ -528,7 +528,7 @@ namespace Toolbox.Xml.Serialization
                 return DeserializeKeyValuePair(element, type);
 
             if (type.IsValueType)
-                return DeserializeValueType(element, converter);
+                return DeserializeValueType(element, converter ?? TypeDescriptor.GetConverter(type));
 
             var obj = DeserializeObject(element, type);
             if (obj != null)
